@@ -15,7 +15,8 @@
         "lint": "eslint .",
         "format": "prettier --write .",
         "sandbox": "cross-env DEBUG=\"*\" npx clava-js out/src/sandbox.js -- clang in/sandbox",
-        "sandbox:watch": "cross-env DEBUG=\"*\" npx clava-js out/src/sandbox.js -w out/src -w in/sandbox -- clang in/sandbox"
+        "sandbox:watch": "cross-env DEBUG=\"*\" npx clava-js out/src/sandbox.js -w out/src -w in/sandbox -- clang in/sandbox",
+        "docs": "typedoc --out docs"
     },
     "exports": {
         "./*": {
@@ -51,6 +52,7 @@
         "eslint-plugin-jest": "^27.4.2",
         "eslint-plugin-tsdoc": "^0.2.17",
         "prettier": "^3.2.5",
+        "typedoc": "^0.26.5",
         "typescript": "^5.3.3"
     }
 }

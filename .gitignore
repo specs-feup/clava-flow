@@ -1,5 +1,6 @@
 node_modules
 out/
+docs/
 woven_code/
 in/sandbox/*
 !/in/sandbox/.keep
