@@ -78,7 +78,7 @@ export default class InferLiveness implements GraphTransformation {
 
         const assignedVars = new Set<string>();
 
-        const $assignments = Query.searchFromInclusive($jp, "binaryOp", {
+        const $assignments = Query.searchFromInclusive($jp, BinaryOp, {
             isAssignment: true,
             left: (left: LaraJoinPoint) => left instanceof Varref,
         });
