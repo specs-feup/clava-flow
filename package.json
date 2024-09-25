@@ -41,7 +41,7 @@
     },
     "homepage": "https://github.com/Goncalerta/clava-flow#readme",
     "dependencies": {
-        "clava-js": "0.0.1"
+        "@specs-feup/clava": "3.0.0"
     },
     "devDependencies": {
         "@typescript-eslint/eslint-plugin": "^6.7.4",
