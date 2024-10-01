@@ -10,7 +10,7 @@ import ScopeStartNode from "clava-flow/flow/node/instruction/ScopeStartNode";
 import VarDeclarationNode from "clava-flow/flow/node/instruction/VarDeclarationNode";
 import BaseGraph from "clava-flow/graph/BaseGraph";
 import Graph, { GraphBuilder, GraphTypeGuard } from "clava-flow/graph/Graph";
-import { Case, FileJp, FunctionJp, If, Loop, Program, Scope } from "clava-js/api/Joinpoints.js";
+import { Case, FileJp, FunctionJp, If, Loop, Program, Scope } from "@specs-feup/clava/api/Joinpoints.js";
 
 namespace FlowGraph {
     export class Class<

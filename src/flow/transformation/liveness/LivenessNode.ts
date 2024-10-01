@@ -3,7 +3,7 @@ import FlowNode from "clava-flow/flow/node/FlowNode";
 import InstructionNode from "clava-flow/flow/node/instruction/InstructionNode";
 import BaseNode from "clava-flow/graph/BaseNode";
 import { NodeBuilder, NodeTypeGuard } from "clava-flow/graph/Node";
-import { Joinpoint, Vardecl } from "clava-js/api/Joinpoints.js";
+import { Joinpoint, Vardecl } from "@specs-feup/clava/api/Joinpoints.js";
 
 namespace LivenessNode {
     export class Class<

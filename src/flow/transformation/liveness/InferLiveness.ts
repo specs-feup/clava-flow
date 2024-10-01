@@ -8,9 +8,9 @@ import VarDeclarationNode from "clava-flow/flow/node/instruction/VarDeclarationN
 import LivenessNode from "clava-flow/flow/transformation/liveness/LivenessNode";
 import BaseGraph from "clava-flow/graph/BaseGraph";
 import { GraphTransformation } from "clava-flow/graph/Graph";
-import { BinaryOp, Case, Expression, If, Loop, Statement, Switch, Vardecl, Varref } from "clava-js/api/Joinpoints.js";
-import { LaraJoinPoint } from "lara-js/api/LaraJoinPoint.js";
-import Query from "lara-js/api/weaver/Query.js";
+import { BinaryOp, Case, Expression, If, Loop, Statement, Switch, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
+import { LaraJoinPoint } from "@specs-feup/lara/api/LaraJoinPoint.js";
+import Query from "@specs-feup/lara/api/weaver/Query.js";
 
 export default class InferLiveness implements GraphTransformation {
     #customComputeDefsAndUses?: (node: LivenessNode.Class) => void;

@@ -1,7 +1,7 @@
 import InstructionNode from "clava-flow/flow/node/instruction/InstructionNode";
 import BaseNode from "clava-flow/graph/BaseNode";
 import { NodeBuilder, NodeTypeGuard } from "clava-flow/graph/Node";
-import { EmptyStmt } from "clava-js/api/Joinpoints.js";
+import { EmptyStmt } from "@specs-feup/clava/api/Joinpoints.js";
 
 namespace EmptyStatementNode {
     export class Class<

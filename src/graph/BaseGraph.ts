@@ -1,10 +1,10 @@
-import cytoscape from "lara-js/api/libs/cytoscape-3.26.0.js";
+import cytoscape from "@specs-feup/lara/api/libs/cytoscape-3.26.0.js";
 import Graph, { GraphBuilder, GraphConstructor, GraphTransformation, GraphTypeGuard } from "clava-flow/graph/Graph";
 import BaseNode from "clava-flow/graph/BaseNode";
 import BaseEdge from "clava-flow/graph/BaseEdge";
-import { JavaClasses } from "lara-js/api/lara/util/JavaTypes.js";
+import { JavaClasses } from "@specs-feup/lara/api/lara/util/JavaTypes.js";
 import DotFormatter from "clava-flow/dot/DotFormatter";
-import Io from "lara-js/api/lara/Io.js";
+import Io from "@specs-feup/lara/api/lara/Io.js";
 import EdgeIdGenerator from "clava-flow/graph/id/EdgeIdGenerator";
 import NodeIdGenerator from "clava-flow/graph/id/NodeIdGenerator";
 

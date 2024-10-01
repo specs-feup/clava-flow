@@ -1,7 +1,7 @@
 import InstructionNode from "clava-flow/flow/node/instruction/InstructionNode";
 import BaseNode from "clava-flow/graph/BaseNode";
 import { NodeBuilder, NodeTypeGuard } from "clava-flow/graph/Node";
-import { Switch } from "clava-js/api/Joinpoints.js";
+import { Switch } from "@specs-feup/clava/api/Joinpoints.js";
 
 namespace SwitchNode {
     export class Class<

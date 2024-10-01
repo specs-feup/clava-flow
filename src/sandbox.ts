@@ -1,7 +1,7 @@
-// Without this import, clava-js does not work for some reason
-import "clava-js/api/Joinpoints.js";
-import { Program } from "clava-js/api/Joinpoints.js";
-import Query from "lara-js/api/weaver/Query.js";
+// Without this import, clava does not work for some reason
+import "@specs-feup/clava/api/Joinpoints.js";
+import { Program } from "@specs-feup/clava/api/Joinpoints.js";
+import Query from "@specs-feup/lara/api/weaver/Query.js";
 import FlowGraph from "clava-flow/flow/FlowGraph";
 import DefaultFlowGraphDotFormatter from "clava-flow/dot/DefaultFlowGraphDotFormatter";
 import Graph, { GraphTransformation } from "clava-flow/graph/Graph";

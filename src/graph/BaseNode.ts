@@ -1,4 +1,4 @@
-import cytoscape from "lara-js/api/libs/cytoscape-3.26.0.js";
+import cytoscape from "@specs-feup/lara/api/libs/cytoscape-3.26.0.js";
 import Graph from "clava-flow/graph/Graph";
 import { NodeBuilder, NodeConstructor, NodeTypeGuard } from "clava-flow/graph/Node";
 import BaseGraph from "clava-flow/graph/BaseGraph";

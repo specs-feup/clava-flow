@@ -14,8 +14,8 @@
         "build:watch": "tsc --watch",
         "lint": "eslint .",
         "format": "prettier --write .",
-        "sandbox": "cross-env DEBUG=\"*\" npx clava-js out/src/sandbox.js -- clang in/sandbox",
-        "sandbox:watch": "cross-env DEBUG=\"*\" npx clava-js out/src/sandbox.js -w out/src -w in/sandbox -- clang in/sandbox",
+        "sandbox": "cross-env DEBUG=\"*\" npx clava out/src/sandbox.js -- clang in/sandbox",
+        "sandbox:watch": "cross-env DEBUG=\"*\" npx clava out/src/sandbox.js -w out/src -w in/sandbox -- clang in/sandbox",
         "docs": "typedoc --out docs"
     },
     "exports": {
@@ -41,7 +41,7 @@
     },
     "homepage": "https://github.com/Goncalerta/clava-flow#readme",
     "dependencies": {
-        "@specs-feup/clava": "3.0.0"
+        "@specs-feup/clava": "3.0.1"
     },
     "devDependencies": {
         "@typescript-eslint/eslint-plugin": "^6.7.4",

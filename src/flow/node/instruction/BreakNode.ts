@@ -1,7 +1,7 @@
 import InstructionNode from "clava-flow/flow/node/instruction/InstructionNode";
 import BaseNode from "clava-flow/graph/BaseNode";
 import { NodeBuilder, NodeTypeGuard } from "clava-flow/graph/Node";
-import { Break } from "clava-js/api/Joinpoints.js";
+import { Break } from "@specs-feup/clava/api/Joinpoints.js";
 
 namespace BreakNode {
     export class Class<

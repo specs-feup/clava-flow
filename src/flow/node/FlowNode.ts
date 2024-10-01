@@ -4,7 +4,7 @@ import ConditionNode from "clava-flow/flow/node/condition/ConditionNode";
 import BaseEdge from "clava-flow/graph/BaseEdge";
 import BaseNode from "clava-flow/graph/BaseNode";
 import { NodeBuilder, NodeTypeGuard } from "clava-flow/graph/Node";
-import { Joinpoint } from "clava-js/api/Joinpoints.js";
+import { Joinpoint } from "@specs-feup/clava/api/Joinpoints.js";
 
 namespace FlowNode {
     export class Class<

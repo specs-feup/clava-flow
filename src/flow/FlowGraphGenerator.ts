@@ -21,8 +21,8 @@ import {
     Comment,
     Pragma,
     Vardecl,
-} from "clava-js/api/Joinpoints.js";
-import Query from "lara-js/api/weaver/Query.js";
+} from "@specs-feup/clava/api/Joinpoints.js";
+import Query from "@specs-feup/lara/api/weaver/Query.js";
 import UnknownInstructionNode from "clava-flow/flow/node/instruction/UnknownInstructionNode";
 import CommentNode from "clava-flow/flow/node/instruction/CommentNode";
 import FlowNode from "clava-flow/flow/node/FlowNode";

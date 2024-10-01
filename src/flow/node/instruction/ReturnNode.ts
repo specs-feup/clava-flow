@@ -1,7 +1,7 @@
 import InstructionNode from "clava-flow/flow/node/instruction/InstructionNode";
 import BaseNode from "clava-flow/graph/BaseNode";
 import { NodeBuilder, NodeTypeGuard } from "clava-flow/graph/Node";
-import { ReturnStmt } from "clava-js/api/Joinpoints.js";
+import { ReturnStmt } from "@specs-feup/clava/api/Joinpoints.js";
 
 namespace ReturnNode {
     export class Class<

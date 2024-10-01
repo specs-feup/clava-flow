@@ -1,7 +1,7 @@
 import InstructionNode from "clava-flow/flow/node/instruction/InstructionNode";
 import BaseNode from "clava-flow/graph/BaseNode";
 import { NodeBuilder, NodeTypeGuard } from "clava-flow/graph/Node";
-import { Expression } from "clava-js/api/Joinpoints.js";
+import { Expression } from "@specs-feup/clava/api/Joinpoints.js";
 
 namespace ExpressionNode {
     export class Class<
