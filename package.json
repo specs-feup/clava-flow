@@ -1,7 +1,7 @@
 {
-    "name": "clava-flow",
+    "name": "@specs-feup/clava-flow",
     "version": "1.0.0",
-    "description": "ControlFlow and DataFlow graphs for Clava.",
+    "description": "Control-flow, Data-flow, static-call, and other graphs for Clava.",
     "type": "module",
     "parserOptions": {
         "project": [
@@ -14,8 +14,8 @@
         "build:watch": "tsc --watch",
         "lint": "eslint .",
         "format": "prettier --write .",
-        "sandbox": "cross-env DEBUG=\"*\" npx clava-js out/src/sandbox.js -- clang in/sandbox",
-        "sandbox:watch": "cross-env DEBUG=\"*\" npx clava-js out/src/sandbox.js -w out/src -w in/sandbox -- clang in/sandbox",
+        "sandbox": "cross-env DEBUG=\"*\" npx clava out/src/sandbox.js -- clang in/sandbox",
+        "sandbox:watch": "cross-env DEBUG=\"*\" npx clava out/src/sandbox.js -w out/src -w in/sandbox -- clang in/sandbox",
         "docs": "typedoc --out docs"
     },
     "exports": {
@@ -37,11 +37,12 @@
     ],
     "author": "",
     "bugs": {
-        "url": "https://github.com/Goncalerta/clava-flow/issues"
+        "url": "https://github.com/Goncalerta/@specs-feup/clava-flow/issues"
     },
     "homepage": "https://github.com/Goncalerta/clava-flow#readme",
     "dependencies": {
-        "clava-js": "0.0.1"
+        "@specs-feup/clava": "3.0.1",
+        "@specs-feup/lara-flow": "1.0.0"
     },
     "devDependencies": {
         "@typescript-eslint/eslint-plugin": "^6.7.4",
