@@ -17,7 +17,7 @@ import WhileNode from "@specs-feup/clava-flow/cfg/WhileNode";
 import ClavaControlFlowNode from "@specs-feup/clava-flow/ClavaControlFlowNode";
 import ClavaFlowGraph from "@specs-feup/clava-flow/ClavaFlowGraph";
 import ClavaNode from "@specs-feup/clava-flow/ClavaNode";
-import { ExprStmt } from "@specs-feup/clava/api/Joinpoints.js";
+import { ExprStmt, Joinpoint } from "@specs-feup/clava/api/Joinpoints.js";
 import FlowDotFormatter from "@specs-feup/lara-flow/flow/dot/FlowDotFormatter";
 import BaseEdge from "@specs-feup/lara-flow/graph/BaseEdge";
 import BaseNode from "@specs-feup/lara-flow/graph/BaseNode";
@@ -28,6 +28,46 @@ export default class ClavaFlowDotFormatter<
     G extends ClavaFlowGraph.Class = ClavaFlowGraph.Class,
 > extends FlowDotFormatter<G> {
     static jumpScopeTransparency = "8f";
+    static codeFontSize = "10";
+    static locationFontSize = "9";
+    static locationFontColor = "#c0c0c0";
+    static keywordColor = "#4040e0";
+    static symbolColor = "#8080a0";
+
+    static renderLineNumber(jp: Joinpoint, last: boolean = false): string {
+        const line = (last ? jp.endLine : jp.line) ?? "?";
+        const column = (last ? jp.endColumn : jp.column) ?? "?";
+        return `<FONT FACE="Consolas" COLOR="${ClavaFlowDotFormatter.locationFontColor}" POINT-SIZE="${ClavaFlowDotFormatter.locationFontSize}">${line}:${column}</FONT>`;
+    }
+
+    static renderKeyword(kw: string): string {
+        return `<FONT FACE="Consolas" COLOR="${ClavaFlowDotFormatter.keywordColor}" POINT-SIZE="${ClavaFlowDotFormatter.codeFontSize}">${kw}</FONT>`;
+    }
+
+    static renderSymbol(sym: string, transparency: string = ""): string {
+        return `<FONT FACE="Consolas" COLOR="${ClavaFlowDotFormatter.symbolColor + transparency}" POINT-SIZE="${ClavaFlowDotFormatter.codeFontSize}">${sym}</FONT>`;
+    }
+
+    static renderUnknownNode(jp: Joinpoint): string {
+        return `<FONT FACE="Arial" COLOR="${ClavaFlowDotFormatter.symbolColor}" POINT-SIZE="6"><SUP>[Unknown joinpoint]</SUP>&nbsp;</FONT>${ClavaFlowDotFormatter.renderValue(jp.code)}`;
+    }
+
+    static renderValue(value: string): string {
+        return `<FONT FACE="Consolas" POINT-SIZE="${ClavaFlowDotFormatter.codeFontSize}"><I>${value}</I></FONT>`;
+    }
+
+    static renderComment(comment: string): string {
+        return `<FONT FACE="Consolas" COLOR="${ClavaFlowDotFormatter.locationFontColor}" POINT-SIZE="${ClavaFlowDotFormatter.locationFontSize}"><I>${comment}</I></FONT>`;
+    }
+
+    static renderNodeLabel(
+        lineRef: Joinpoint | { jp: Joinpoint; last: boolean },
+        ...labels: string[]
+    ) {
+        const jp = lineRef instanceof Joinpoint ? lineRef : lineRef.jp;
+        const last = lineRef instanceof Joinpoint ? false : lineRef.last;
+        return `<${ClavaFlowDotFormatter.renderLineNumber(jp, last)}<BR/>${labels.join("")}>`;
+    }
 
     /**
      * @param node The node to get the attributes for.
@@ -40,17 +80,26 @@ export default class ClavaFlowDotFormatter<
         const result: Record<string, string> = {};
         node.switch(
             Node.Case(CommentNode, (n) => {
-                result.label = n.jp.code;
+                result.label = ClavaFlowDotFormatter.renderNodeLabel(
+                    n.jp,
+                    ClavaFlowDotFormatter.renderSymbol(n.jp.code),
+                );
             }),
             Node.Case(PragmaNode, (n) => {
-                result.label = n.jp.code;
+                result.label = ClavaFlowDotFormatter.renderNodeLabel(
+                    n.jp,
+                    ClavaFlowDotFormatter.renderSymbol(n.jp.code),
+                );
             }),
             Node.Case(ScopeNode, (n) => {
-                result.label = n.isScopeStart ? "{" : "}";
+                result.label = ClavaFlowDotFormatter.renderNodeLabel(
+                    { jp: n.jp, last: n.isScopeEnd },
+                    ClavaFlowDotFormatter.renderSymbol(
+                        n.isScopeStart ? "{" : "}",
+                        n.isFlowJump ? ClavaFlowDotFormatter.jumpScopeTransparency : "",
+                    ),
+                );
                 if (n.isFlowJump) {
-                    result.fontcolor =
-                        FlowDotFormatter.cfgNodeDarkColor +
-                        ClavaFlowDotFormatter.jumpScopeTransparency;
                     result.color =
                         FlowDotFormatter.cfgNodeColor +
                         ClavaFlowDotFormatter.jumpScopeTransparency;
@@ -58,61 +107,125 @@ export default class ClavaFlowDotFormatter<
                 }
             }),
             Node.Case(VariableDeclarationNode, (n) => {
-                result.label = n.jp.code;
+                result.label = ClavaFlowDotFormatter.renderNodeLabel(
+                    n.jp,
+                    ClavaFlowDotFormatter.renderValue(n.jp.code),
+                );
             }),
             Node.Case(ExpressionNode, (n) => {
-                result.label = n.jp.code;
+                result.label = ClavaFlowDotFormatter.renderNodeLabel(
+                    n.jp,
+                    ClavaFlowDotFormatter.renderValue(n.jp.code),
+                );
             }),
             Node.Case(EmptyStatementNode, (n) => {
-                result.label = ";";
+                result.label = ClavaFlowDotFormatter.renderNodeLabel(
+                    n.jp,
+                    ClavaFlowDotFormatter.renderSymbol(";"),
+                );
             }),
             Node.Case(BreakNode, (n) => {
-                result.label = "break";
+                result.label = ClavaFlowDotFormatter.renderNodeLabel(
+                    n.jp,
+                    ClavaFlowDotFormatter.renderKeyword("break"),
+                );
             }),
             Node.Case(ContinueNode, (n) => {
-                result.label = "continue";
+                result.label = ClavaFlowDotFormatter.renderNodeLabel(
+                    n.jp,
+                    ClavaFlowDotFormatter.renderKeyword("continue"),
+                );
             }),
             Node.Case(GotoNode, (n) => {
-                result.label = "goto " + n.jp.label.name;
+                result.label = ClavaFlowDotFormatter.renderNodeLabel(
+                    n.jp,
+                    ClavaFlowDotFormatter.renderKeyword("goto"),
+                    " ",
+                    ClavaFlowDotFormatter.renderValue(n.jp.label.name),
+                );
             }),
             Node.Case(GotoLabelNode, (n) => {
-                result.label = n.jp.name + ":";
+                result.label = ClavaFlowDotFormatter.renderNodeLabel(
+                    n.jp,
+                    ClavaFlowDotFormatter.renderValue(n.jp.name),
+                    ClavaFlowDotFormatter.renderSymbol(":"),
+                );
             }),
             Node.Case(ReturnNode, (n) => {
-                result.label = "return";
-                const retVal = n.jp.returnExpr;
-                if (retVal !== undefined) {
-                    result.label += " " + retVal.code;
+                if (n.jp.returnExpr === undefined) {
+                    result.label = ClavaFlowDotFormatter.renderNodeLabel(
+                        n.jp,
+                        ClavaFlowDotFormatter.renderKeyword("return"),
+                    );
+                } else {
+                    result.label = ClavaFlowDotFormatter.renderNodeLabel(
+                        n.jp,
+                        ClavaFlowDotFormatter.renderKeyword("return"),
+                        " ",
+                        ClavaFlowDotFormatter.renderValue(n.jp.returnExpr.code),
+                    );
                 }
             }),
             Node.Case(IfNode, (n) => {
-                result.label = "if (" + n.jp.cond.code + ")";
+                result.label = ClavaFlowDotFormatter.renderNodeLabel(
+                    n.jp,
+                    ClavaFlowDotFormatter.renderKeyword("if"),
+                    " ",
+                    ClavaFlowDotFormatter.renderSymbol("("),
+                    ClavaFlowDotFormatter.renderValue(n.jp.cond.code),
+                    ClavaFlowDotFormatter.renderSymbol(")"),
+                );
             }),
             Node.Case(WhileNode, (n) => {
-                // TODO confirm that nothing can go wrong in while or for
-                // (e.g., statement not being an expression)
-                result.label = "while (" + (n.jp.cond as ExprStmt).expr.code + ")";
+                // TODO confirm that nothing can go wrong in: while, for, for-each, do-while
+                // (e.g., statement not being an expression) - and make better sugar to access it
+                result.label = ClavaFlowDotFormatter.renderNodeLabel(
+                    n.jp,
+                    ClavaFlowDotFormatter.renderKeyword("while"),
+                    " ",
+                    ClavaFlowDotFormatter.renderSymbol("("),
+                    ClavaFlowDotFormatter.renderValue((n.jp.cond as ExprStmt).expr.code),
+                    ClavaFlowDotFormatter.renderSymbol(")"),
+                );
             }),
             Node.Case(DoWhileNode, (n) => {
-                // TODO confirm that nothing can go wrong in while or for
-                // (e.g., statement not being an expression)
-                result.label = "do-while (" + (n.jp.cond as ExprStmt).expr.code + ")";
+                result.label = ClavaFlowDotFormatter.renderNodeLabel(
+                    n.jp,
+                    ClavaFlowDotFormatter.renderKeyword("do-while"),
+                    " ",
+                    ClavaFlowDotFormatter.renderSymbol("("),
+                    ClavaFlowDotFormatter.renderValue((n.jp.cond as ExprStmt).expr.code),
+                    ClavaFlowDotFormatter.renderSymbol(")"),
+                );
             }),
             Node.Case(ForNode, (n) => {
-                // TODO confirm that nothing can go wrong in while or for
-                // (e.g., statement not being an expression)
-                result.label = "for (...; " + (n.jp.cond as ExprStmt).expr.code + "; ...)";
+                result.label = ClavaFlowDotFormatter.renderNodeLabel(
+                    n.jp,
+                    ClavaFlowDotFormatter.renderKeyword("for"),
+                    ClavaFlowDotFormatter.renderSymbol('&nbsp;(...;'),
+                    ClavaFlowDotFormatter.renderValue((n.jp.cond as ExprStmt).expr.code),
+                    ClavaFlowDotFormatter.renderSymbol("; ...)"),
+                );
             }),
             Node.Case(ForEachNode, (n) => {
-                // TODO confirm that nothing can go wrong in while or for
-                // (e.g., statement not being an expression)
-                // TODO fix the whole for-each thing
-                result.label = "for-each (" + (n.jp.children[3] as ExprStmt).expr.code + ")";
+                result.label = ClavaFlowDotFormatter.renderNodeLabel(
+                    n.jp,
+                    ClavaFlowDotFormatter.renderKeyword("for-each"),
+                    " ",
+                    ClavaFlowDotFormatter.renderSymbol('&nbsp;(...;'),
+                    ClavaFlowDotFormatter.renderValue((n.jp.children[3] as ExprStmt).expr.code),
+                    ClavaFlowDotFormatter.renderSymbol("; ...)"),
+                );
+                
             }),
             Node.Case(ClavaControlFlowNode, (n) => {
-                result.label = "Unknown node |" + n.jp.code;
+                result.label = ClavaFlowDotFormatter.renderNodeLabel(
+                    n.jp,
+                    ClavaFlowDotFormatter.renderUnknownNode(n.jp),
+                );
             }),
         );
+
         return result;
     }
 

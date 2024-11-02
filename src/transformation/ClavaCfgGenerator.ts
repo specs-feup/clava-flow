@@ -51,7 +51,7 @@ import Graph from "@specs-feup/lara-flow/graph/Graph";
 import Node from "@specs-feup/lara-flow/graph/Node";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 
-
+// TODO fix goto label bug
 class SubGraph {
     head: ClavaControlFlowNode.Class | undefined;
     tail: ClavaControlFlowNode.Class[];
@@ -558,6 +558,7 @@ export default class ClavaCfgGenerator
             // TODO add init and step to ForNode
             uninitConditionNode!.init(new ForNode.Builder($jp));
         } else if ($jp.kind === "foreach") {
+            // TODO fix the whole for-each thing
             uninitConditionNode!.init(new ForEachNode.Builder($jp));
         }
 
