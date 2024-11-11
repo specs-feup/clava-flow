@@ -1,19 +1,20 @@
-import BreakNode from "@specs-feup/clava-flow/cfg/BreakNode";
-import CommentNode from "@specs-feup/clava-flow/cfg/CommentNode";
-import ContinueNode from "@specs-feup/clava-flow/cfg/ContinueNode";
-import DoWhileNode from "@specs-feup/clava-flow/cfg/DoWhileNode";
-import EmptyStatementNode from "@specs-feup/clava-flow/cfg/EmptyStatementNode";
-import ExpressionNode from "@specs-feup/clava-flow/cfg/ExpressionNode";
-import ForEachNode from "@specs-feup/clava-flow/cfg/ForEachNode";
-import ForNode from "@specs-feup/clava-flow/cfg/ForNode";
-import GotoLabelNode from "@specs-feup/clava-flow/cfg/GotoLabelNode";
-import GotoNode from "@specs-feup/clava-flow/cfg/GotoNode";
-import IfNode from "@specs-feup/clava-flow/cfg/IfNode";
-import PragmaNode from "@specs-feup/clava-flow/cfg/PragmaNode";
-import ReturnNode from "@specs-feup/clava-flow/cfg/ReturnNode";
-import ScopeNode from "@specs-feup/clava-flow/cfg/ScopeNode";
-import VariableDeclarationNode from "@specs-feup/clava-flow/cfg/VariableDeclarationNode";
-import WhileNode from "@specs-feup/clava-flow/cfg/WhileNode";
+import ConditionalEdge from "@specs-feup/clava-flow/cfg/edge/ConditionalEdge";
+import BreakNode from "@specs-feup/clava-flow/cfg/node/BreakNode";
+import CommentNode from "@specs-feup/clava-flow/cfg/node/CommentNode";
+import ContinueNode from "@specs-feup/clava-flow/cfg/node/ContinueNode";
+import DoWhileNode from "@specs-feup/clava-flow/cfg/node/DoWhileNode";
+import EmptyStatementNode from "@specs-feup/clava-flow/cfg/node/EmptyStatementNode";
+import ExpressionNode from "@specs-feup/clava-flow/cfg/node/ExpressionNode";
+import ForEachNode from "@specs-feup/clava-flow/cfg/node/ForEachNode";
+import ForNode from "@specs-feup/clava-flow/cfg/node/ForNode";
+import GotoLabelNode from "@specs-feup/clava-flow/cfg/node/GotoLabelNode";
+import GotoNode from "@specs-feup/clava-flow/cfg/node/GotoNode";
+import IfNode from "@specs-feup/clava-flow/cfg/node/IfNode";
+import PragmaNode from "@specs-feup/clava-flow/cfg/node/PragmaNode";
+import ReturnNode from "@specs-feup/clava-flow/cfg/node/ReturnNode";
+import ScopeNode from "@specs-feup/clava-flow/cfg/node/ScopeNode";
+import VariableDeclarationNode from "@specs-feup/clava-flow/cfg/node/VariableDeclarationNode";
+import WhileNode from "@specs-feup/clava-flow/cfg/node/WhileNode";
 import ClavaControlFlowNode from "@specs-feup/clava-flow/ClavaControlFlowNode";
 import ClavaFlowGraph from "@specs-feup/clava-flow/ClavaFlowGraph";
 import ClavaFunctionNode from "@specs-feup/clava-flow/ClavaFunctionNode";
@@ -51,46 +52,53 @@ import Graph from "@specs-feup/lara-flow/graph/Graph";
 import Node from "@specs-feup/lara-flow/graph/Node";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 
-// TODO fix goto label bug
 class SubGraph {
     head: ClavaControlFlowNode.Class | undefined;
-    tail: ClavaControlFlowNode.Class[];
+    normalTail: ClavaControlFlowNode.Class[];
+    falseTail: ClavaControlFlowNode.Class[];
+    jumpTail: ClavaControlFlowNode.Class[];
     tailIsFake: boolean;
 
     constructor(
         head: ClavaControlFlowNode.Class | undefined,
-        tail: ClavaControlFlowNode.Class[],
+        normalTail: ClavaControlFlowNode.Class[],
+        falseTail: ClavaControlFlowNode.Class[] = [],
+        jumpTail: ClavaControlFlowNode.Class[] = [],
         tailIsFake: boolean,
     ) {
         this.head = head;
-        this.tail = tail;
+        this.normalTail = normalTail;
+        this.falseTail = falseTail;
+        this.jumpTail = jumpTail;
         this.tailIsFake = tailIsFake;
     }
 
     static fromSingle(node: ClavaControlFlowNode.Class): SubGraph {
-        return new SubGraph(node, [node], false);
+        return new SubGraph(node, [node], [], [], false);
     }
 
     static fromSequence(
         head: ClavaControlFlowNode.Class,
         tail: ClavaControlFlowNode.Class,
     ): SubGraph {
-        return new SubGraph(head, [tail], false);
+        return new SubGraph(head, [tail], [], [], false);
     }
 
     static fromEmpty(): SubGraph {
-        return new SubGraph(undefined, [], false);
+        return new SubGraph(undefined, [], [], [], false);
     }
 
     static fromJump(node: ClavaControlFlowNode.Class): SubGraph {
-        return new SubGraph(node, [node], true);
+        return new SubGraph(node, [node], [], [], true);
     }
 
     static fromBranched(
         head: ClavaControlFlowNode.Class,
         tail: ClavaControlFlowNode.Class[],
+        falseTail: ClavaControlFlowNode.Class[] = [],
+        jumpTail: ClavaControlFlowNode.Class[] = [],
     ) {
-        return new SubGraph(head, tail, false);
+        return new SubGraph(head, tail, falseTail, jumpTail, false);
     }
 }
 
@@ -141,6 +149,18 @@ class GeneratorContext {
             .addEdge(from, to)
             .init(new ControlFlowEdge.Builder())
             .as(ControlFlowEdge);
+    }
+
+    addConditionalEdge(
+        from: ClavaControlFlowNode.Class,
+        to: ControlFlowNode.Class,
+        condition: boolean,
+    ): ConditionalEdge.Class {
+        return this.#graph
+            .addEdge(from, to)
+            .init(new ControlFlowEdge.Builder())
+            .init(new ConditionalEdge.Builder(condition))
+            .as(ConditionalEdge);
     }
 
     addFakeCfgEdge(
@@ -218,6 +238,9 @@ class GeneratorContext {
         const target = to.tryAs(ClavaControlFlowNode)?.jp?.astId;
 
         while (currentJp?.astId !== target) {
+            if (currentJp instanceof FunctionJp) {
+                break;
+            }
             if (currentJp instanceof Scope) {
                 const endScope = this.addCfgNode(
                     new ScopeNode.Builder(
@@ -285,6 +308,10 @@ class GeneratorContext {
 
     #getScopeList(jp: Joinpoint): Scope[] {
         const result: Scope[] = [];
+
+        if (jp instanceof LabelDecl) {
+            jp = jp.labelStmt;
+        }
 
         while (true) {
             if (jp instanceof Scope) {
@@ -372,7 +399,7 @@ export default class ClavaCfgGenerator
         for (const returnTail of ctx.returns) {
             ctx.connectOutwardsJump(returnTail, endNode);
         }
-        ctx.addCfgEdge(body.tail[0], endNode);
+        ctx.addCfgEdge(body.normalTail[0], endNode);
     }
 
     #processScope(jp: Scope, ctx: GeneratorContext): SubGraph {
@@ -391,12 +418,19 @@ export default class ClavaCfgGenerator
                 continue;
             }
 
-            for (const tailNode of current.tail) {
+            for (const tailNode of current.normalTail) {
                 if (current.tailIsFake) {
                     ctx.addFakeCfgEdge(tailNode, processedChild.head);
                 } else {
                     ctx.addCfgEdge(tailNode, processedChild.head);
                 }
+            }
+            for (const tailNode of current.jumpTail) {
+                ctx.connectOutwardsJump(tailNode, processedChild.head);
+            }
+            for (const tailNode of current.falseTail) {
+                console.log(tailNode.jp.code);
+                ctx.addConditionalEdge(tailNode, processedChild.head, false);
             }
             current = processedChild;
         }
@@ -409,12 +443,18 @@ export default class ClavaCfgGenerator
             ),
         );
 
-        for (const tailNode of current.tail) {
+        for (const tailNode of current.normalTail) {
             if (current.tailIsFake) {
                 ctx.addFakeCfgEdge(tailNode, scopeEnd);
             } else {
                 ctx.addCfgEdge(tailNode, scopeEnd);
             }
+        }
+        for (const tailNode of current.jumpTail) {
+            ctx.connectOutwardsJump(tailNode, scopeEnd);
+        }
+        for (const tailNode of current.falseTail) {
+            ctx.addConditionalEdge(tailNode, scopeEnd, false);
         }
 
         return SubGraph.fromSequence(scopeStart, scopeEnd);
@@ -477,9 +517,7 @@ export default class ClavaCfgGenerator
             return this.#processGoto(jp, ctx);
         }
 
-        // TODO default situation (unsupported jp)
         throw new Error("Unsupported joinpoint type " + jp.joinPointType);
-        //return ctx.addInstruction(new ClavaControlFlowNode.Builder(jp));
     }
 
     #processVarDecl($jp: DeclStmt, ctx: GeneratorContext): SubGraph {
@@ -516,22 +554,22 @@ export default class ClavaCfgGenerator
 
         const conditionNode = ctx.addCfgNode(new IfNode.Builder($jp));
         const ifTrueSubgraph = this.#processScope($iftrue, ctx);
-        ctx.addCfgEdge(conditionNode, ifTrueSubgraph.head!); // TODO make it a true-edge
+        ctx.addConditionalEdge(conditionNode, ifTrueSubgraph.head!, true);
 
         let elseTail: ClavaControlFlowNode.Class[] = [];
-        if ($iffalse === undefined) {
-            elseTail = [conditionNode];
-        } else {
+        const falseTail = $iffalse === undefined ? [conditionNode] : [];
+        if ($iffalse !== undefined) {
             const ifFalseSubgraph = this.#processScope($iffalse, ctx);
-            ctx.addCfgEdge(conditionNode, ifFalseSubgraph.head!); // TODO make it a false-edge
-            elseTail = ifFalseSubgraph.tail;
+            ctx.addConditionalEdge(conditionNode, ifFalseSubgraph.head!, false);
+            elseTail = ifFalseSubgraph.normalTail;
         }
 
-        return SubGraph.fromBranched(conditionNode, elseTail.concat(ifTrueSubgraph.tail));
+        return SubGraph.fromBranched(conditionNode, elseTail.concat(ifTrueSubgraph.normalTail), falseTail);
     }
 
     #processLoop($jp: Loop, ctx: GeneratorContext): SubGraph {
         // TODO should there be an extra scope around the for? because of vardecls inside init
+        //      that is, loop itself must be a scope
         let init: SubGraph | undefined;
         let step: SubGraph | undefined;
         let uninitConditionNode: ControlFlowNode.Class | undefined;
@@ -567,22 +605,22 @@ export default class ClavaCfgGenerator
             "All four cases initialize with a subtype of ClavaControlFlowNode",
         );
 
-        ctx.addCfgEdge(conditionNode, body.head!); // TODO make it a true-edge
+        ctx.addConditionalEdge(conditionNode, body.head!, true);
 
         const continueTarget =
             $jp.kind === "for" && step!.head !== undefined ? step!.head : conditionNode;
-        for (const bodyTailNode of body.tail) {
+        for (const bodyTailNode of body.normalTail) {
             ctx.addCfgEdge(bodyTailNode, continueTarget);
         }
         for (const continueNode of continues) {
             ctx.connectOutwardsJump(continueNode, continueTarget);
         }
         if ($jp.kind === "for") {
-            for (const stepTailNode of step!.tail) {
+            for (const stepTailNode of step!.normalTail) {
                 ctx.addCfgEdge(stepTailNode, conditionNode);
             }
 
-            for (const initTailNode of init!.tail) {
+            for (const initTailNode of init!.normalTail) {
                 ctx.addCfgEdge(initTailNode, conditionNode);
             }
         }
@@ -596,10 +634,7 @@ export default class ClavaCfgGenerator
             head = conditionNode;
         }
 
-        // TODO break must be special for outwards jump, so this is not enough
-        //       continueNodem ust also be special (for creating a false-edge)
-        const tail = [conditionNode!, ...breaks];
-        return SubGraph.fromBranched(head, tail);
+        return SubGraph.fromBranched(head, [], [conditionNode!], breaks);
     }
 
     #processSwitch($jp: Switch, ctx: GeneratorContext): SubGraph {

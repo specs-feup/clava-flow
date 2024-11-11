@@ -1,27 +1,30 @@
-import BreakNode from "@specs-feup/clava-flow/cfg/BreakNode";
-import CommentNode from "@specs-feup/clava-flow/cfg/CommentNode";
-import ContinueNode from "@specs-feup/clava-flow/cfg/ContinueNode";
-import DoWhileNode from "@specs-feup/clava-flow/cfg/DoWhileNode";
-import EmptyStatementNode from "@specs-feup/clava-flow/cfg/EmptyStatementNode";
-import ExpressionNode from "@specs-feup/clava-flow/cfg/ExpressionNode";
-import ForEachNode from "@specs-feup/clava-flow/cfg/ForEachNode";
-import ForNode from "@specs-feup/clava-flow/cfg/ForNode";
-import GotoLabelNode from "@specs-feup/clava-flow/cfg/GotoLabelNode";
-import GotoNode from "@specs-feup/clava-flow/cfg/GotoNode";
-import IfNode from "@specs-feup/clava-flow/cfg/IfNode";
-import PragmaNode from "@specs-feup/clava-flow/cfg/PragmaNode";
-import ReturnNode from "@specs-feup/clava-flow/cfg/ReturnNode";
-import ScopeNode from "@specs-feup/clava-flow/cfg/ScopeNode";
-import VariableDeclarationNode from "@specs-feup/clava-flow/cfg/VariableDeclarationNode";
-import WhileNode from "@specs-feup/clava-flow/cfg/WhileNode";
+import ConditionalEdge from "@specs-feup/clava-flow/cfg/edge/ConditionalEdge";
+import BreakNode from "@specs-feup/clava-flow/cfg/node/BreakNode";
+import CommentNode from "@specs-feup/clava-flow/cfg/node/CommentNode";
+import ContinueNode from "@specs-feup/clava-flow/cfg/node/ContinueNode";
+import DoWhileNode from "@specs-feup/clava-flow/cfg/node/DoWhileNode";
+import EmptyStatementNode from "@specs-feup/clava-flow/cfg/node/EmptyStatementNode";
+import ExpressionNode from "@specs-feup/clava-flow/cfg/node/ExpressionNode";
+import ForEachNode from "@specs-feup/clava-flow/cfg/node/ForEachNode";
+import ForNode from "@specs-feup/clava-flow/cfg/node/ForNode";
+import GotoLabelNode from "@specs-feup/clava-flow/cfg/node/GotoLabelNode";
+import GotoNode from "@specs-feup/clava-flow/cfg/node/GotoNode";
+import IfNode from "@specs-feup/clava-flow/cfg/node/IfNode";
+import PragmaNode from "@specs-feup/clava-flow/cfg/node/PragmaNode";
+import ReturnNode from "@specs-feup/clava-flow/cfg/node/ReturnNode";
+import ScopeNode from "@specs-feup/clava-flow/cfg/node/ScopeNode";
+import VariableDeclarationNode from "@specs-feup/clava-flow/cfg/node/VariableDeclarationNode";
+import WhileNode from "@specs-feup/clava-flow/cfg/node/WhileNode";
 import ClavaControlFlowNode from "@specs-feup/clava-flow/ClavaControlFlowNode";
 import ClavaFlowGraph from "@specs-feup/clava-flow/ClavaFlowGraph";
+import ClavaFunctionNode from "@specs-feup/clava-flow/ClavaFunctionNode";
 import ClavaNode from "@specs-feup/clava-flow/ClavaNode";
 import { ExprStmt, Joinpoint } from "@specs-feup/clava/api/Joinpoints.js";
 import FlowDotFormatter from "@specs-feup/lara-flow/flow/dot/FlowDotFormatter";
 import BaseEdge from "@specs-feup/lara-flow/graph/BaseEdge";
 import BaseNode from "@specs-feup/lara-flow/graph/BaseNode";
 import DefaultDotFormatter from "@specs-feup/lara-flow/graph/dot/DefaultDotFormatter";
+import Edge from "@specs-feup/lara-flow/graph/Edge";
 import Node from "@specs-feup/lara-flow/graph/Node";
 
 export default class ClavaFlowDotFormatter<
@@ -33,11 +36,14 @@ export default class ClavaFlowDotFormatter<
     static locationFontColor = "#c0c0c0";
     static keywordColor = "#4040e0";
     static symbolColor = "#8080a0";
+    static trueColor = "#7bc706";
+    static falseColor = "#d10202";
 
-    static renderLineNumber(jp: Joinpoint, last: boolean = false): string {
+    static renderLineNumber(jp: Joinpoint, last: boolean = false, includeFilename: boolean = false): string {
         const line = (last ? jp.endLine : jp.line) ?? "?";
         const column = (last ? jp.endColumn : jp.column) ?? "?";
-        return `<FONT FACE="Consolas" COLOR="${ClavaFlowDotFormatter.locationFontColor}" POINT-SIZE="${ClavaFlowDotFormatter.locationFontSize}">${line}:${column}</FONT>`;
+        const label = includeFilename ? `${jp.filename ?? "?"}:${line}:${column}` : `${line}:${column}`;
+        return `<FONT FACE="Consolas" COLOR="${ClavaFlowDotFormatter.locationFontColor}" POINT-SIZE="${ClavaFlowDotFormatter.locationFontSize}">${label}</FONT>`;
     }
 
     static renderKeyword(kw: string): string {
@@ -61,12 +67,13 @@ export default class ClavaFlowDotFormatter<
     }
 
     static renderNodeLabel(
-        lineRef: Joinpoint | { jp: Joinpoint; last: boolean },
+        lineRef: Joinpoint | { jp: Joinpoint; last?: boolean, includeFilename?: boolean },
         ...labels: string[]
     ) {
         const jp = lineRef instanceof Joinpoint ? lineRef : lineRef.jp;
-        const last = lineRef instanceof Joinpoint ? false : lineRef.last;
-        return `<${ClavaFlowDotFormatter.renderLineNumber(jp, last)}<BR/>${labels.join("")}>`;
+        const last = lineRef instanceof Joinpoint ? false : lineRef.last ?? false;
+        const includeFilename = lineRef instanceof Joinpoint ? false : lineRef.includeFilename ?? false;
+        return `<${ClavaFlowDotFormatter.renderLineNumber(jp, last, includeFilename)}<BR/>${labels.join("")}>`;
     }
 
     /**
@@ -79,6 +86,12 @@ export default class ClavaFlowDotFormatter<
         }
         const result: Record<string, string> = {};
         node.switch(
+            Node.Case(ClavaFunctionNode, (n) => {
+                result.label = ClavaFlowDotFormatter.renderNodeLabel(
+                    {jp: n.jp, includeFilename: true},
+                    n.functionName,
+                );
+            }),
             Node.Case(CommentNode, (n) => {
                 result.label = ClavaFlowDotFormatter.renderNodeLabel(
                     n.jp,
@@ -202,7 +215,7 @@ export default class ClavaFlowDotFormatter<
                 result.label = ClavaFlowDotFormatter.renderNodeLabel(
                     n.jp,
                     ClavaFlowDotFormatter.renderKeyword("for"),
-                    ClavaFlowDotFormatter.renderSymbol('&nbsp;(...;'),
+                    ClavaFlowDotFormatter.renderSymbol("&nbsp;(...;"),
                     ClavaFlowDotFormatter.renderValue((n.jp.cond as ExprStmt).expr.code),
                     ClavaFlowDotFormatter.renderSymbol("; ...)"),
                 );
@@ -212,11 +225,12 @@ export default class ClavaFlowDotFormatter<
                     n.jp,
                     ClavaFlowDotFormatter.renderKeyword("for-each"),
                     " ",
-                    ClavaFlowDotFormatter.renderSymbol('&nbsp;(...;'),
-                    ClavaFlowDotFormatter.renderValue((n.jp.children[3] as ExprStmt).expr.code),
+                    ClavaFlowDotFormatter.renderSymbol("&nbsp;(...;"),
+                    ClavaFlowDotFormatter.renderValue(
+                        (n.jp.children[3] as ExprStmt).expr.code,
+                    ),
                     ClavaFlowDotFormatter.renderSymbol("; ...)"),
                 );
-                
             }),
             Node.Case(ClavaControlFlowNode, (n) => {
                 result.label = ClavaFlowDotFormatter.renderNodeLabel(
@@ -234,20 +248,20 @@ export default class ClavaFlowDotFormatter<
      * @returns The attributes of the edge.
      */
     static defaultGetEdgeAttrs(edge: BaseEdge.Class): Record<string, string> {
-        return {};
-        //     const result: Record<string, string> = {};
-        //     edge.switch(
-        //         Edge.Case(CallEdge, (e) => {
-        //             result.color = FlowDotFormatter.functionColor;
-        //         }),
-        //         Edge.Case(ControlFlowEdge, (e) => {
-        //             result.color = FlowDotFormatter.cfgDefaultEdgeColor;
-        //             if (e.isFake) {
-        //                 result.color += FlowDotFormatter.cfgEdgeTransparency;
-        //             }
-        //         }),
-        //     );
-        //     return result;
+        const result: Record<string, string> = {};
+        edge.switch(
+            Edge.Case(ConditionalEdge, (e) => {
+                if (e.executesIfTrue) {
+                    result.color = ClavaFlowDotFormatter.trueColor;
+                } else {
+                    result.color = ClavaFlowDotFormatter.falseColor;
+                }
+                if (e.isFake) {
+                    result.color += FlowDotFormatter.cfgEdgeTransparency;
+                }
+            })
+        );
+        return result;
     }
 
     /**
