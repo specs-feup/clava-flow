@@ -26,7 +26,7 @@ namespace ClavaFlowGraph {
 
             return super
                 .addFunction(fn.signature, node)
-                .init(new ClavaFunctionNode.Builder(fn))
+                .init(new ClavaFunctionNode.Builder(fn.canonical))
                 .as(ClavaFunctionNode);
         }
 
@@ -43,18 +43,22 @@ namespace ClavaFlowGraph {
             return super.getFunction(fn.signature)?.tryAs(ClavaFunctionNode);
         }
 
-        // getOrAddFunction(fn: FunctionJp): ClavaFunctionNode.Class {
-        //     if (!this.hasFunction(name)) {
-        //         node = this.addNode();
-        //         this.data[FlowGraph.TAG].functions[name] = node.id;
-        //         return node.init(new FunctionNode.Builder(name)).as(FunctionNode);
-        //     }
+        getOrAddFunction(fn: FunctionJp): ClavaFunctionNode.Class {
+            let functionNode = this.getFunction(fn.signature);
+            if (functionNode === undefined) {
+                functionNode = this.addFunction(fn.signature);
+            }
+            if (!functionNode.is(ClavaFunctionNode)) {
+                return functionNode.init(new ClavaFunctionNode.Builder(fn.canonical)).as(ClavaFunctionNode);
+            }
 
-        // }
+            return functionNode.as(ClavaFunctionNode);
+        }
 
         hasFunction(name: string): boolean;
         hasFunction(fn: FunctionJp): boolean;
         override hasFunction(fn: string | FunctionJp): boolean {
+            if (fn instanceof FunctionJp) return this.getFunction(fn) !== undefined;
             return this.getFunction(fn) !== undefined;
         }
 

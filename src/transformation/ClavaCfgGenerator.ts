@@ -376,10 +376,7 @@ export default class ClavaCfgGenerator
 
     #processFunction(graph: ClavaFlowGraph.Class, fn: FunctionJp): void {
         // Reuse existing function node if it already exists
-        let fnNode = graph.getFunction(fn);
-        if (fnNode === undefined) {
-            fnNode = graph.addFunction(fn);
-        }
+        const fnNode = graph.getOrAddFunction(fn);
 
         // CFG Nodes will be overwriten
         // TODO maybe configurable? (ERROR | KEEP | OVERWRITE) (default: ERROR)

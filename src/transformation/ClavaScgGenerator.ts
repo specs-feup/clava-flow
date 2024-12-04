@@ -1,6 +1,7 @@
 import ClavaFlowGraph from "@specs-feup/clava-flow/ClavaFlowGraph";
-import { FileJp, FunctionJp, Program } from "@specs-feup/clava/api/Joinpoints.js";
+import { Call, FileJp, FunctionJp, Program } from "@specs-feup/clava/api/Joinpoints.js";
 import LaraFlowError from "@specs-feup/flow/error/LaraFlowError";
+import CallEdge from "@specs-feup/flow/flow/CallEdge";
 import FlowGraph from "@specs-feup/flow/flow/FlowGraph";
 import BaseGraph from "@specs-feup/flow/graph/BaseGraph";
 import Graph from "@specs-feup/flow/graph/Graph";
@@ -51,14 +52,6 @@ export default class ClavaScgGenerator
         }
 
         for (const fn of functionsToProcess) {
-            // Reuse existing function node if it already exists
-            let fnNode = cgraph.getFunction(fn);
-            if (fnNode === undefined) {
-                fnNode = cgraph.addFunction(fn);
-            }
-        }
-
-        for (const fn of functionsToProcess) {
             this.#processFunction(cgraph, fn);
         }
 
@@ -66,16 +59,13 @@ export default class ClavaScgGenerator
     }
 
     #processFunction(graph: ClavaFlowGraph.Class, fn: FunctionJp): void {
-        // const ctx = new GeneratorContext(graph, fnNode);
-        // const body = this.#processScope(fn.body, ctx);
-        // fnNode.cfgEntryNode = body.head!;
-        // const endNode = graph
-        //     .addNode()
-        //     .init(new ControlFlowEndNode.Builder(fnNode))
-        //     .as(ControlFlowEndNode);
-        // for (const returnTail of ctx.returns) {
-        //     ctx.connectOutwardsJump(returnTail, endNode);
-        // }
-        // ctx.addCfgEdge(body.normalTail[0], endNode);
+        const fnNode = graph.getOrAddFunction(fn);
+        // TODO only accept direct calls, not calls from nested functions
+        for (const call of Query.searchFrom(fn, Call)) {
+            const callee = call.definition ?? call.declaration; // TODO may be undefined
+            const calleeNode = graph.getOrAddFunction(callee);
+            // TODO repeat or only once?
+            const callEdge = graph.addEdge(fnNode, calleeNode).init(new CallEdge.Builder());
+        }
     }
 }
