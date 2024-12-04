@@ -43,16 +43,20 @@ namespace ClavaFlowGraph {
             return super.getFunction(fn.signature)?.tryAs(ClavaFunctionNode);
         }
 
-        getOrAddFunction(fn: FunctionJp): ClavaFunctionNode.Class {
-            let functionNode = this.getFunction(fn.signature);
-            if (functionNode === undefined) {
-                functionNode = this.addFunction(fn.signature);
+        getOrAddFunction(name: string): FunctionNode.Class;
+        getOrAddFunction(fn: FunctionJp): ClavaFunctionNode.Class;
+        getOrAddFunction(fn: string | FunctionJp): FunctionNode.Class | ClavaFunctionNode.Class {
+            const signature = typeof fn === "string" ? fn : fn.signature;
+            const functionNode = super.getOrAddFunction(signature);
+            if (typeof fn === "string") {
+                return functionNode;
             }
-            if (!functionNode.is(ClavaFunctionNode)) {
-                return functionNode.init(new ClavaFunctionNode.Builder(fn.canonical)).as(ClavaFunctionNode);
+            if (functionNode.is(ClavaFunctionNode)) {
+                return functionNode.as(ClavaFunctionNode);
             }
-
-            return functionNode.as(ClavaFunctionNode);
+            return functionNode
+                .init(new ClavaFunctionNode.Builder(fn.canonical))
+                .as(ClavaFunctionNode);
         }
 
         hasFunction(name: string): boolean;

@@ -1,5 +1,5 @@
 import ClavaFlowGraph from "@specs-feup/clava-flow/ClavaFlowGraph";
-import { Call, FileJp, FunctionJp, Program } from "@specs-feup/clava/api/Joinpoints.js";
+import { Call, FileJp, FunctionJp, Joinpoint, Program } from "@specs-feup/clava/api/Joinpoints.js";
 import LaraFlowError from "@specs-feup/flow/error/LaraFlowError";
 import CallEdge from "@specs-feup/flow/flow/CallEdge";
 import FlowGraph from "@specs-feup/flow/flow/FlowGraph";
@@ -33,13 +33,19 @@ export default class ClavaScgGenerator
 
         // Process all function implementations inside Programs and FileJps
         // Only process a FunctionJp if it is an implementation (and ignore nested functions)
-        const functionsToProcess = new Set<FunctionJp>();
+
+        // TODO possibly add optional configuration to explore unselected functions that were called and
+        //      have a definition.
+        //      This would permit selecting one entry point (example: main), and finding all the
+        //      "potentially reachable" functions from that entry point
+        // TODO functions that were actually processed should be marked as such (this should facilitate
+        //      debug, given that one may have forgot to process one function and think that it has no calls)
         for (const jp of this.#jps) {
             if (jp instanceof Program || jp instanceof FileJp) {
                 for (const fn of Query.searchFrom(jp, FunctionJp, {
                     isImplementation: true,
                 })) {
-                    functionsToProcess.add(fn);
+                    this.#processFunction(cgraph, fn);
                 }
             } else if (jp instanceof FunctionJp) {
                 if (!jp.isImplementation) {
@@ -47,12 +53,8 @@ export default class ClavaScgGenerator
                         "Cannot build graph for function without implementation",
                     );
                 }
-                functionsToProcess.add(jp);
+                this.#processFunction(cgraph, jp);
             }
-        }
-
-        for (const fn of functionsToProcess) {
-            this.#processFunction(cgraph, fn);
         }
 
         return cgraph;
@@ -60,12 +62,18 @@ export default class ClavaScgGenerator
 
     #processFunction(graph: ClavaFlowGraph.Class, fn: FunctionJp): void {
         const fnNode = graph.getOrAddFunction(fn);
-        // TODO only accept direct calls, not calls from nested functions
+
+        const visited = new Set<string>();
         for (const call of Query.searchFrom(fn, Call)) {
-            const callee = call.definition ?? call.declaration; // TODO may be undefined
-            const calleeNode = graph.getOrAddFunction(callee);
-            // TODO repeat or only once?
-            const callEdge = graph.addEdge(fnNode, calleeNode).init(new CallEdge.Builder());
+            if (call.getAncestor("function").astId !== fn.astId) {
+                continue;
+            }
+            if (visited.has(call.signature)) {
+                continue;
+            }
+            visited.add(call.signature);
+            const calleeNode = graph.getOrAddFunction(call.signature);
+            graph.addEdge(fnNode, calleeNode).init(new CallEdge.Builder());
         }
     }
 }

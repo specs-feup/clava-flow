@@ -380,9 +380,14 @@ export default class ClavaCfgGenerator
 
         // CFG Nodes will be overwriten
         // TODO maybe configurable? (ERROR | KEEP | OVERWRITE) (default: ERROR)
-        for (const node of fnNode.controlFlowNodes) {
-            node.remove();
+        if (fnNode.controlFlowNodes.length > 0) {
+            throw new LaraFlowError(
+                "Function already has control flow nodes; cannot overwrite",
+            );
         }
+        // for (const node of fnNode.controlFlowNodes) {
+        //     node.remove();
+        // }
 
         const ctx = new GeneratorContext(graph, fnNode);
         const body = this.#processScope(fn.body, ctx);
