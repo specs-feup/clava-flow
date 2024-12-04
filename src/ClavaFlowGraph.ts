@@ -1,10 +1,10 @@
 import ClavaFunctionNode from "@specs-feup/clava-flow/ClavaFunctionNode";
 import { FunctionJp } from "@specs-feup/clava/api/Joinpoints.js";
-import FlowGraph from "@specs-feup/lara-flow/flow/FlowGraph";
-import FunctionNode from "@specs-feup/lara-flow/flow/FunctionNode";
-import BaseNode from "@specs-feup/lara-flow/graph/BaseNode";
-import Graph from "@specs-feup/lara-flow/graph/Graph";
-import { NodeCollection } from "@specs-feup/lara-flow/graph/NodeCollection";
+import FlowGraph from "@specs-feup/flow/flow/FlowGraph";
+import FunctionNode from "@specs-feup/flow/flow/FunctionNode";
+import BaseNode from "@specs-feup/flow/graph/BaseNode";
+import Graph from "@specs-feup/flow/graph/Graph";
+import { NodeCollection } from "@specs-feup/flow/graph/NodeCollection";
 
 namespace ClavaFlowGraph {
     export const TAG = "__clava_flow__clava_flow_graph";
@@ -31,7 +31,7 @@ namespace ClavaFlowGraph {
         }
 
         getFunction(name: string): FunctionNode.Class | undefined;
-        getFunction(fn: FunctionJp | string): ClavaFunctionNode.Class | undefined;
+        getFunction(fn: FunctionJp): ClavaFunctionNode.Class | undefined;
         override getFunction(fn: string | FunctionJp): FunctionNode.Class | undefined {
             if (typeof fn === "string") {
                 return super.getFunction(fn);
@@ -42,6 +42,15 @@ namespace ClavaFlowGraph {
             //       If that's the case, use more sophisticated mangling
             return super.getFunction(fn.signature)?.tryAs(ClavaFunctionNode);
         }
+
+        // getOrAddFunction(fn: FunctionJp): ClavaFunctionNode.Class {
+        //     if (!this.hasFunction(name)) {
+        //         node = this.addNode();
+        //         this.data[FlowGraph.TAG].functions[name] = node.id;
+        //         return node.init(new FunctionNode.Builder(name)).as(FunctionNode);
+        //     }
+
+        // }
 
         hasFunction(name: string): boolean;
         hasFunction(fn: FunctionJp): boolean;

@@ -1,5 +1,5 @@
-import ControlFlowEdge from "@specs-feup/lara-flow/flow/ControlFlowEdge";
-import Edge from "@specs-feup/lara-flow/graph/Edge";
+import ControlFlowEdge from "@specs-feup/flow/flow/ControlFlowEdge";
+import Edge from "@specs-feup/flow/graph/Edge";
 
 namespace ConditionalEdge {
     export const TAG = "__lara_flow__conditional_edge";
@@ -18,7 +18,15 @@ namespace ConditionalEdge {
         }
     }
 
-    export class Builder implements Edge.Builder<Data, ScratchData, ControlFlowEdge.Data, ControlFlowEdge.ScratchData> {
+    export class Builder
+        implements
+            Edge.Builder<
+                Data,
+                ScratchData,
+                ControlFlowEdge.Data,
+                ControlFlowEdge.ScratchData
+            >
+    {
         #conditionToExecute: boolean;
 
         constructor(conditionToExecute: boolean) {

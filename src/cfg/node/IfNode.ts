@@ -1,8 +1,8 @@
 import ClavaControlFlowNode from "@specs-feup/clava-flow/ClavaControlFlowNode";
 import ClavaNode from "@specs-feup/clava-flow/ClavaNode";
 import { If } from "@specs-feup/clava/api/Joinpoints.js";
-import ControlFlowNode from "@specs-feup/lara-flow/flow/ControlFlowNode";
-import Node from "@specs-feup/lara-flow/graph/Node";
+import ControlFlowNode from "@specs-feup/flow/flow/ControlFlowNode";
+import Node from "@specs-feup/flow/graph/Node";
 
 namespace IfNode {
     export const TAG = "__clava_flow__if_node";

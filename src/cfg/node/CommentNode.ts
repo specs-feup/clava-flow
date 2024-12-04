@@ -1,10 +1,10 @@
 import ClavaControlFlowNode from "@specs-feup/clava-flow/ClavaControlFlowNode";
 import ClavaNode from "@specs-feup/clava-flow/ClavaNode";
 import { Comment } from "@specs-feup/clava/api/Joinpoints.js";
-import ControlFlowNode from "@specs-feup/lara-flow/flow/ControlFlowNode";
-import FunctionNode from "@specs-feup/lara-flow/flow/FunctionNode";
-import BaseNode from "@specs-feup/lara-flow/graph/BaseNode";
-import Node from "@specs-feup/lara-flow/graph/Node";
+import ControlFlowNode from "@specs-feup/flow/flow/ControlFlowNode";
+import FunctionNode from "@specs-feup/flow/flow/FunctionNode";
+import BaseNode from "@specs-feup/flow/graph/BaseNode";
+import Node from "@specs-feup/flow/graph/Node";
 
 namespace CommentNode {
     export const TAG = "__clava_flow__comment_node";

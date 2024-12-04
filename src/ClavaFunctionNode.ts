@@ -1,8 +1,8 @@
 import ClavaNode from "@specs-feup/clava-flow/ClavaNode";
 import { FunctionJp } from "@specs-feup/clava/api/Joinpoints.js";
-import FunctionNode from "@specs-feup/lara-flow/flow/FunctionNode";
-import BaseNode from "@specs-feup/lara-flow/graph/BaseNode";
-import Node from "@specs-feup/lara-flow/graph/Node";
+import FunctionNode from "@specs-feup/flow/flow/FunctionNode";
+import BaseNode from "@specs-feup/flow/graph/BaseNode";
+import Node from "@specs-feup/flow/graph/Node";
 
 namespace ClavaFunctionNode {
     export class Class<

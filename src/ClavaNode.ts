@@ -1,6 +1,6 @@
 import { Joinpoint } from "@specs-feup/clava/api/Joinpoints.js";
-import BaseNode from "@specs-feup/lara-flow/graph/BaseNode";
-import Node from "@specs-feup/lara-flow/graph/Node";
+import BaseNode from "@specs-feup/flow/graph/BaseNode";
+import Node from "@specs-feup/flow/graph/Node";
 
 namespace ClavaNode {
     export const TAG = "__clava_flow__clava_node";

@@ -42,14 +42,14 @@ import {
     Vardecl,
     WrapperStmt,
 } from "@specs-feup/clava/api/Joinpoints.js";
-import LaraFlowError from "@specs-feup/lara-flow/error/LaraFlowError";
-import ControlFlowEdge from "@specs-feup/lara-flow/flow/ControlFlowEdge";
-import ControlFlowEndNode from "@specs-feup/lara-flow/flow/ControlFlowEndNode";
-import ControlFlowNode from "@specs-feup/lara-flow/flow/ControlFlowNode";
-import FlowGraph from "@specs-feup/lara-flow/flow/FlowGraph";
-import BaseGraph from "@specs-feup/lara-flow/graph/BaseGraph";
-import Graph from "@specs-feup/lara-flow/graph/Graph";
-import Node from "@specs-feup/lara-flow/graph/Node";
+import LaraFlowError from "@specs-feup/flow/error/LaraFlowError";
+import ControlFlowEdge from "@specs-feup/flow/flow/ControlFlowEdge";
+import ControlFlowEndNode from "@specs-feup/flow/flow/ControlFlowEndNode";
+import ControlFlowNode from "@specs-feup/flow/flow/ControlFlowNode";
+import FlowGraph from "@specs-feup/flow/flow/FlowGraph";
+import BaseGraph from "@specs-feup/flow/graph/BaseGraph";
+import Graph from "@specs-feup/flow/graph/Graph";
+import Node from "@specs-feup/flow/graph/Node";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 
 class SubGraph {
@@ -429,7 +429,6 @@ export default class ClavaCfgGenerator
                 ctx.connectOutwardsJump(tailNode, processedChild.head);
             }
             for (const tailNode of current.falseTail) {
-                console.log(tailNode.jp.code);
                 ctx.addConditionalEdge(tailNode, processedChild.head, false);
             }
             current = processedChild;
@@ -564,7 +563,11 @@ export default class ClavaCfgGenerator
             elseTail = ifFalseSubgraph.normalTail;
         }
 
-        return SubGraph.fromBranched(conditionNode, elseTail.concat(ifTrueSubgraph.normalTail), falseTail);
+        return SubGraph.fromBranched(
+            conditionNode,
+            elseTail.concat(ifTrueSubgraph.normalTail),
+            falseTail,
+        );
     }
 
     #processLoop($jp: Loop, ctx: GeneratorContext): SubGraph {

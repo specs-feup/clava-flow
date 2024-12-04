@@ -20,12 +20,12 @@ import ClavaFlowGraph from "@specs-feup/clava-flow/ClavaFlowGraph";
 import ClavaFunctionNode from "@specs-feup/clava-flow/ClavaFunctionNode";
 import ClavaNode from "@specs-feup/clava-flow/ClavaNode";
 import { ExprStmt, Joinpoint } from "@specs-feup/clava/api/Joinpoints.js";
-import FlowDotFormatter from "@specs-feup/lara-flow/flow/dot/FlowDotFormatter";
-import BaseEdge from "@specs-feup/lara-flow/graph/BaseEdge";
-import BaseNode from "@specs-feup/lara-flow/graph/BaseNode";
-import DefaultDotFormatter from "@specs-feup/lara-flow/graph/dot/DefaultDotFormatter";
-import Edge from "@specs-feup/lara-flow/graph/Edge";
-import Node from "@specs-feup/lara-flow/graph/Node";
+import FlowDotFormatter from "@specs-feup/flow/flow/dot/FlowDotFormatter";
+import BaseEdge from "@specs-feup/flow/graph/BaseEdge";
+import BaseNode from "@specs-feup/flow/graph/BaseNode";
+import DefaultDotFormatter from "@specs-feup/flow/graph/dot/DefaultDotFormatter";
+import Edge from "@specs-feup/flow/graph/Edge";
+import Node from "@specs-feup/flow/graph/Node";
 
 export default class ClavaFlowDotFormatter<
     G extends ClavaFlowGraph.Class = ClavaFlowGraph.Class,
@@ -39,10 +39,16 @@ export default class ClavaFlowDotFormatter<
     static trueColor = "#7bc706";
     static falseColor = "#d10202";
 
-    static renderLineNumber(jp: Joinpoint, last: boolean = false, includeFilename: boolean = false): string {
+    static renderLineNumber(
+        jp: Joinpoint,
+        last: boolean = false,
+        includeFilename: boolean = false,
+    ): string {
         const line = (last ? jp.endLine : jp.line) ?? "?";
         const column = (last ? jp.endColumn : jp.column) ?? "?";
-        const label = includeFilename ? `${jp.filename ?? "?"}:${line}:${column}` : `${line}:${column}`;
+        const label = includeFilename
+            ? `${jp.filename ?? "?"}:${line}:${column}`
+            : `${line}:${column}`;
         return `<FONT FACE="Consolas" COLOR="${ClavaFlowDotFormatter.locationFontColor}" POINT-SIZE="${ClavaFlowDotFormatter.locationFontSize}">${label}</FONT>`;
     }
 
@@ -67,12 +73,13 @@ export default class ClavaFlowDotFormatter<
     }
 
     static renderNodeLabel(
-        lineRef: Joinpoint | { jp: Joinpoint; last?: boolean, includeFilename?: boolean },
+        lineRef: Joinpoint | { jp: Joinpoint; last?: boolean; includeFilename?: boolean },
         ...labels: string[]
     ) {
         const jp = lineRef instanceof Joinpoint ? lineRef : lineRef.jp;
-        const last = lineRef instanceof Joinpoint ? false : lineRef.last ?? false;
-        const includeFilename = lineRef instanceof Joinpoint ? false : lineRef.includeFilename ?? false;
+        const last = lineRef instanceof Joinpoint ? false : (lineRef.last ?? false);
+        const includeFilename =
+            lineRef instanceof Joinpoint ? false : (lineRef.includeFilename ?? false);
         return `<${ClavaFlowDotFormatter.renderLineNumber(jp, last, includeFilename)}<BR/>${labels.join("")}>`;
     }
 
@@ -88,7 +95,7 @@ export default class ClavaFlowDotFormatter<
         node.switch(
             Node.Case(ClavaFunctionNode, (n) => {
                 result.label = ClavaFlowDotFormatter.renderNodeLabel(
-                    {jp: n.jp, includeFilename: true},
+                    { jp: n.jp, includeFilename: true },
                     n.functionName,
                 );
             }),
@@ -259,7 +266,7 @@ export default class ClavaFlowDotFormatter<
                 if (e.isFake) {
                     result.color += FlowDotFormatter.cfgEdgeTransparency;
                 }
-            })
+            }),
         );
         return result;
     }
