@@ -37,9 +37,9 @@
     ],
     "author": "",
     "bugs": {
-        "url": "https://github.com/Goncalerta/@specs-feup/clava-flow/issues"
+        "url": "https://github.com/specs-feup/clava-flow/issues"
     },
-    "homepage": "https://github.com/Goncalerta/clava-flow#readme",
+    "homepage": "https://github.com/specs-feup/clava-flow#readme",
     "dependencies": {
         "@specs-feup/clava": "3.0.1",
         "@specs-feup/flow": "1.0.0"

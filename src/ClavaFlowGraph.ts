@@ -66,11 +66,7 @@ namespace ClavaFlowGraph {
             return this.getFunction(fn) !== undefined;
         }
 
-        get clavaFunctions(): NodeCollection<
-            ClavaFunctionNode.Data,
-            ClavaFunctionNode.ScratchData,
-            ClavaFunctionNode.Class
-        > {
+        get clavaFunctions(): NodeCollection<ClavaFunctionNode.Class> {
             return this.functions.filterIs(ClavaFunctionNode);
         }
 
