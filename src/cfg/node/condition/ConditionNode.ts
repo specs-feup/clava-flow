@@ -1,19 +1,26 @@
 import ClavaControlFlowNode from "@specs-feup/clava-flow/ClavaControlFlowNode";
 import ClavaNode from "@specs-feup/clava-flow/ClavaNode";
-import { If } from "@specs-feup/clava/api/Joinpoints.js";
+import { Expression, ExprStmt, If, Loop } from "@specs-feup/clava/api/Joinpoints.js";
 import ControlFlowNode from "@specs-feup/flow/flow/ControlFlowNode";
 import Node from "@specs-feup/flow/graph/Node";
 
-namespace IfNode {
-    export const TAG = "__clava_flow__if_node";
+namespace ConditionNode {
+    export const TAG = "__clava_flow__condition_node";
     export const VERSION = "1";
 
     export class Class<
         D extends Data = Data,
         S extends ScratchData = ScratchData,
     > extends ClavaControlFlowNode.Class<D, S> {
-        override get jp(): If {
+        override get jp(): Loop | If {
             return this.scratchData[ClavaNode.TAG].jp;
+        }
+
+        get condition(): Expression {
+            if (this.jp instanceof If) {
+                return this.jp.cond;
+            }
+            return (this.jp.cond as ExprStmt).expr;
         }
     }
 
@@ -26,10 +33,10 @@ namespace IfNode {
                 ControlFlowNode.ScratchData
             >
     {
-        #jp: If;
+        #jp: Loop | If;
         #clavaNodeBuilder: ClavaNode.Builder;
 
-        constructor(jp: If) {
+        constructor(jp: Loop | If) {
             this.#jp = jp;
             this.#clavaNodeBuilder = new ClavaNode.Builder(this.#jp);
         }
@@ -61,7 +68,7 @@ namespace IfNode {
         (sData) => {
             return (
                 ClavaControlFlowNode.TypeGuard.isScratchDataCompatible(sData) &&
-                sData[ClavaNode.TAG].jp instanceof If
+                (sData[ClavaNode.TAG].jp instanceof Loop || sData[ClavaNode.TAG].jp instanceof If)
             );
         },
     );
@@ -74,9 +81,9 @@ namespace IfNode {
 
     export interface ScratchData extends ClavaControlFlowNode.ScratchData {
         [ClavaNode.TAG]: {
-            jp: If;
+            jp: Loop | If;
         };
     }
 }
 
-export default IfNode;
+export default ConditionNode;

@@ -1,17 +1,17 @@
-import ClavaControlFlowNode from "@specs-feup/clava-flow/ClavaControlFlowNode";
+import ConditionNode from "@specs-feup/clava-flow/cfg/node/condition/ConditionNode";
 import ClavaNode from "@specs-feup/clava-flow/ClavaNode";
 import { Loop } from "@specs-feup/clava/api/Joinpoints.js";
 import ControlFlowNode from "@specs-feup/flow/flow/ControlFlowNode";
 import Node from "@specs-feup/flow/graph/Node";
 
-namespace ForEachNode {
-    export const TAG = "__clava_flow__for_each_node";
+namespace ForNode {
+    export const TAG = "__clava_flow__for_node";
     export const VERSION = "1";
 
     export class Class<
         D extends Data = Data,
         S extends ScratchData = ScratchData,
-    > extends ClavaControlFlowNode.Class<D, S> {
+    > extends ConditionNode.Class<D, S> {
         override get jp(): Loop {
             return this.scratchData[ClavaNode.TAG].jp;
         }
@@ -27,17 +27,17 @@ namespace ForEachNode {
             >
     {
         #jp: Loop;
-        #clavaNodeBuilder: ClavaNode.Builder;
+        #conditionNodeBuilder: ConditionNode.Builder;
 
         constructor(jp: Loop) {
             this.#jp = jp;
-            this.#clavaNodeBuilder = new ClavaNode.Builder(this.#jp);
+            this.#conditionNodeBuilder = new ConditionNode.Builder(this.#jp);
         }
 
         buildData(data: ControlFlowNode.Data): Data {
             return {
                 ...data,
-                ...this.#clavaNodeBuilder.buildData(data),
+                ...this.#conditionNodeBuilder.buildData(data),
                 [TAG]: {
                     version: VERSION,
                 },
@@ -47,7 +47,7 @@ namespace ForEachNode {
         buildScratchData(scratchData: ControlFlowNode.ScratchData): ScratchData {
             return {
                 ...scratchData,
-                ...this.#clavaNodeBuilder.buildScratchData(scratchData),
+                ...this.#conditionNodeBuilder.buildScratchData(scratchData),
                 [ClavaNode.TAG]: {
                     jp: this.#jp,
                 },
@@ -60,23 +60,23 @@ namespace ForEachNode {
         VERSION,
         (sData) => {
             return (
-                ClavaControlFlowNode.TypeGuard.isScratchDataCompatible(sData) &&
+                ConditionNode.TypeGuard.isScratchDataCompatible(sData) &&
                 sData[ClavaNode.TAG].jp instanceof Loop
             );
         },
     );
 
-    export interface Data extends ClavaControlFlowNode.Data {
+    export interface Data extends ConditionNode.Data {
         [TAG]: {
             version: typeof VERSION;
         };
     }
 
-    export interface ScratchData extends ClavaControlFlowNode.ScratchData {
+    export interface ScratchData extends ConditionNode.ScratchData {
         [ClavaNode.TAG]: {
             jp: Loop;
         };
     }
 }
 
-export default ForEachNode;
+export default ForNode;
