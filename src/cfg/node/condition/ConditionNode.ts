@@ -1,6 +1,6 @@
 import ClavaControlFlowNode from "@specs-feup/clava-flow/ClavaControlFlowNode";
 import ClavaNode from "@specs-feup/clava-flow/ClavaNode";
-import { Expression, ExprStmt, If, Loop } from "@specs-feup/clava/api/Joinpoints.js";
+import { Expression, ExprStmt, If, Loop, Switch } from "@specs-feup/clava/api/Joinpoints.js";
 import ControlFlowNode from "@specs-feup/flow/flow/ControlFlowNode";
 import Node from "@specs-feup/flow/graph/Node";
 
@@ -12,13 +12,16 @@ namespace ConditionNode {
         D extends Data = Data,
         S extends ScratchData = ScratchData,
     > extends ClavaControlFlowNode.Class<D, S> {
-        override get jp(): Loop | If {
+        override get jp(): Loop | If | Switch {
             return this.scratchData[ClavaNode.TAG].jp;
         }
 
         get condition(): Expression {
             if (this.jp instanceof If) {
                 return this.jp.cond;
+            }
+            if (this.jp instanceof Switch) {
+                return this.jp.condition;
             }
             return (this.jp.cond as ExprStmt).expr;
         }
@@ -33,10 +36,10 @@ namespace ConditionNode {
                 ControlFlowNode.ScratchData
             >
     {
-        #jp: Loop | If;
+        #jp: Loop | If | Switch;
         #clavaNodeBuilder: ClavaNode.Builder;
 
-        constructor(jp: Loop | If) {
+        constructor(jp: Loop | If | Switch) {
             this.#jp = jp;
             this.#clavaNodeBuilder = new ClavaNode.Builder(this.#jp);
         }
@@ -81,7 +84,7 @@ namespace ConditionNode {
 
     export interface ScratchData extends ClavaControlFlowNode.ScratchData {
         [ClavaNode.TAG]: {
-            jp: Loop | If;
+            jp: Loop | If | Switch;
         };
     }
 }

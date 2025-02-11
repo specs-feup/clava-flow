@@ -1,5 +1,5 @@
 import ClavaFlowGraph from "@specs-feup/clava-flow/ClavaFlowGraph";
-import { Call, FileJp, FunctionJp, Joinpoint, Program } from "@specs-feup/clava/api/Joinpoints.js";
+import { Call, FileJp, FunctionJp, Program } from "@specs-feup/clava/api/Joinpoints.js";
 import LaraFlowError from "@specs-feup/flow/error/LaraFlowError";
 import CallEdge from "@specs-feup/flow/flow/CallEdge";
 import FlowGraph from "@specs-feup/flow/flow/FlowGraph";
@@ -42,9 +42,7 @@ export default class ClavaScgGenerator
         //      debug, given that one may have forgot to process one function and think that it has no calls)
         for (const jp of this.#jps) {
             if (jp instanceof Program || jp instanceof FileJp) {
-                for (const fn of Query.searchFrom(jp, FunctionJp, {
-                    isImplementation: true,
-                })) {
+                for (const fn of Query.searchFrom(jp, FunctionJp, fn => fn.isImplementation)) {
                     this.#processFunction(cgraph, fn);
                 }
             } else if (jp instanceof FunctionJp) {

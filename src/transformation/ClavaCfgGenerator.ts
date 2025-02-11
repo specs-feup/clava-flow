@@ -235,9 +235,12 @@ class GeneratorContext {
         let exitNode: ClavaControlFlowNode.Class = from;
         let currentJp = from.jp;
 
-        const target = to.tryAs(ClavaControlFlowNode)?.jp?.astId;
+        let target = to.tryAs(ClavaControlFlowNode)?.jp;
+        while (target !== undefined && !(target instanceof Scope)) {
+            target = target.parent;
+        }
 
-        while (currentJp?.astId !== target) {
+        while (currentJp?.astId !== target?.astId) {
             if (currentJp instanceof FunctionJp) {
                 break;
             }
@@ -356,9 +359,7 @@ export default class ClavaCfgGenerator
         // Only process a FunctionJp if it is an implementation (and ignore nested functions)
         for (const jp of this.#jps) {
             if (jp instanceof Program || jp instanceof FileJp) {
-                for (const fn of Query.searchFrom(jp, FunctionJp, {
-                    isImplementation: true,
-                })) {
+                for (const fn of Query.searchFrom(jp, FunctionJp, fn => fn.isImplementation)) {
                     this.#processFunction(cgraph, fn);
                 }
             } else if (jp instanceof FunctionJp) {

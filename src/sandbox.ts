@@ -2,7 +2,7 @@ import ClavaFunctionNode from "@specs-feup/clava-flow/ClavaFunctionNode";
 import ClavaFlowDotFormatter from "@specs-feup/clava-flow/dot/ClavaFlowDotFormatter";
 import ClavaCfgGenerator from "@specs-feup/clava-flow/transformation/ClavaCfgGenerator";
 import ClavaScgGenerator from "@specs-feup/clava-flow/transformation/ClavaScgGenerator";
-import { Program } from "@specs-feup/clava/api/Joinpoints.js";
+import { Program, Vardecl } from "@specs-feup/clava/api/Joinpoints.js";
 import Graph from "@specs-feup/flow/graph/Graph";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 
@@ -12,3 +12,7 @@ const graph = Graph.create()
 
 const formatter = new ClavaFlowDotFormatter();
 graph.toFile(formatter, "out/graph.dot");
+
+Query.search(Vardecl, v => v.name === "unique").get().forEach(v => {
+    console.log(v.name, v.getAncestor("function")?.code, "\n==================\n\n\n");
+})
