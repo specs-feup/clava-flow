@@ -3,12 +3,6 @@
     "version": "1.0.0",
     "description": "Control-flow, Data-flow, static-call, and other graphs for Clava.",
     "type": "module",
-    "parserOptions": {
-        "project": [
-            "./*/tsconfig.json",
-            "./tsconfig.*.json"
-        ]
-    },
     "scripts": {
         "build": "tsc",
         "build:watch": "tsc --watch",
@@ -20,8 +14,8 @@
     },
     "exports": {
         "./*": {
-            "types": "./out/src/*.d.ts",
-            "default": "./out/src/*.js"
+            "types": "./dist/*.d.ts",
+            "default": "./dist/*.js"
         }
     },
     "repository": {
