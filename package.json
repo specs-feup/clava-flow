@@ -3,6 +3,16 @@
     "version": "1.0.0",
     "description": "Control-flow, Data-flow, static-call, and other graphs for Clava.",
     "type": "module",
+    "files": [
+        "out",
+        "src",
+        ".eslintrc.js",
+        ".gitignore",
+        "package.json",
+        "README.md",
+        "tsconfig.json",
+        "typedoc.config.js"
+    ],
     "parserOptions": {
         "project": [
             "./*/tsconfig.json",
