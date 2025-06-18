@@ -1,10 +1,10 @@
 {
     "name": "@specs-feup/clava-flow",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Control-flow, Data-flow, static-call, and other graphs for Clava.",
     "type": "module",
     "files": [
-        "out",
+        "dist",
         "src",
         ".eslintrc.js",
         ".gitignore",
@@ -30,8 +30,8 @@
     },
     "exports": {
         "./*": {
-            "types": "./out/src/*.d.ts",
-            "default": "./out/src/*.js"
+            "types": "./dist/*.d.ts",
+            "default": "./dist/*.js"
         }
     },
     "repository": {
@@ -51,9 +51,9 @@
     },
     "homepage": "https://github.com/specs-feup/clava-flow#readme",
     "dependencies": {
-        "@specs-feup/clava": "3.0.5",
-        "@specs-feup/lara": "3.0.4",
-        "@specs-feup/flow": "1.0.0"
+        "@specs-feup/clava": "^3.0.5",
+        "@specs-feup/lara": "^3.0.4",
+        "@specs-feup/flow": "^1.0.3"
     },
     "devDependencies": {
         "@typescript-eslint/eslint-plugin": "^6.7.4",
