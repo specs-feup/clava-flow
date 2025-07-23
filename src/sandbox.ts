@@ -11,7 +11,7 @@ const graph = Graph.create()
     .apply(new ClavaScgGenerator(Query.root() as Program));
 
 const formatter = new ClavaFlowDotFormatter();
-graph.toFile(formatter, "out/graph.dot");
+graph.toFile(formatter, "dist/graph.dot");
 
 Query.search(Vardecl, v => v.name === "unique").get().forEach(v => {
     console.log(v.name, v.getAncestor("function")?.code, "\n==================\n\n\n");

@@ -332,8 +332,7 @@ class GeneratorContext {
 }
 
 export default class ClavaCfgGenerator
-    implements Graph.Transformation<BaseGraph.Class, ClavaFlowGraph.Class>
-{
+    implements Graph.Transformation<BaseGraph.Class, ClavaFlowGraph.Class> {
     #jps: (Program | FileJp | FunctionJp)[];
 
     constructor(...jps: (Program | FileJp | FunctionJp)[]) {
@@ -580,7 +579,7 @@ export default class ClavaCfgGenerator
         let step: SubGraph | undefined;
         let uninitConditionNode: ControlFlowNode.Class | undefined;
 
-        if ($jp.kind === "for") {
+        if ($jp.kind === "for" && $jp.init !== undefined) {
             init = this.#processJp($jp.init, ctx);
         }
 
@@ -598,7 +597,7 @@ export default class ClavaCfgGenerator
             // Only scenario where conditionNode is not defined
             uninitConditionNode = ctx.addCfgNode(new DoWhileNode.Builder($jp));
         } else if ($jp.kind === "for") {
-            step = this.#processJp($jp.step, ctx);
+            if ($jp.step !== undefined) step = this.#processJp($jp.step, ctx);
             // TODO add init and step to ForNode
             uninitConditionNode!.init(new ForNode.Builder($jp));
         } else if ($jp.kind === "foreach") {
@@ -614,27 +613,35 @@ export default class ClavaCfgGenerator
         ctx.addConditionalEdge(conditionNode, body.head!, true);
 
         const continueTarget =
-            $jp.kind === "for" && step!.head !== undefined ? step!.head : conditionNode;
+            $jp.kind === "for" && step !== undefined && step!.head !== undefined ? step!.head : conditionNode;
+
         for (const bodyTailNode of body.normalTail) {
             ctx.addCfgEdge(bodyTailNode, continueTarget);
         }
+
         for (const continueNode of continues) {
             ctx.connectOutwardsJump(continueNode, continueTarget);
         }
+
         if ($jp.kind === "for") {
-            for (const stepTailNode of step!.normalTail) {
-                ctx.addCfgEdge(stepTailNode, conditionNode);
+            if (step !== undefined) {
+                for (const stepTailNode of step!.normalTail) {
+                    ctx.addCfgEdge(stepTailNode, conditionNode);
+                }
+
             }
 
-            for (const initTailNode of init!.normalTail) {
-                ctx.addCfgEdge(initTailNode, conditionNode);
+            if (init !== undefined) {
+                for (const initTailNode of init!.normalTail) {
+                    ctx.addCfgEdge(initTailNode, conditionNode);
+                }
             }
         }
 
         let head: ClavaControlFlowNode.Class;
         if ($jp.kind === "dowhile") {
             head = body.head!;
-        } else if ($jp.kind === "for" && init!.head !== undefined) {
+        } else if ($jp.kind === "for" && init !== undefined && init!.head !== undefined) {
             head = init!.head;
         } else {
             head = conditionNode;
