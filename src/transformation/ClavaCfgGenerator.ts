@@ -602,7 +602,9 @@ export default class ClavaCfgGenerator
             // Only scenario where conditionNode is not defined
             uninitConditionNode = ctx.addCfgNode(new DoWhileNode.Builder($jp));
         } else if ($jp.kind === "for") {
-            if ($jp.step !== undefined) step = this.#processJp($jp.step, ctx);
+            if ($jp.step !== undefined) {
+                step = this.#processJp($jp.step, ctx);
+            }
             // TODO add init and step to ForNode
             uninitConditionNode!.init(new ForNode.Builder($jp));
         } else if ($jp.kind === "foreach") {
