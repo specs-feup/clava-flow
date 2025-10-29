@@ -42,6 +42,7 @@ import {
     Switch,
     Vardecl,
     WrapperStmt,
+    AsmStmt
 } from "@specs-feup/clava/api/Joinpoints.js";
 import LaraFlowError from "@specs-feup/flow/error/LaraFlowError";
 import ControlFlowEdge from "@specs-feup/flow/flow/ControlFlowEdge";
@@ -518,7 +519,7 @@ export default class ClavaCfgGenerator
             return this.#processLabel(jp.decl, ctx);
         } else if (jp instanceof GotoStmt) {
             return this.#processGoto(jp, ctx);
-        } else if (jp instanceof Statement && jp.type === undefined && (jp.code.startsWith("__asm__ ") || jp.code.startsWith("__asm__("))) {
+        } else if (jp instanceof AsmStmt) {
             const node = ctx.addCfgNode(new AsmStatementNode.Builder(jp));
             return SubGraph.fromSingle(node);
         }
