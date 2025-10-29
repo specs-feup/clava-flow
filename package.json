@@ -1,6 +1,6 @@
 {
     "name": "@specs-feup/clava-flow",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "Control-flow, Data-flow, static-call, and other graphs for Clava.",
     "type": "module",
     "files": [
