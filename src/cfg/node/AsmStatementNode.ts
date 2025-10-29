@@ -1,6 +1,6 @@
 import ClavaControlFlowNode from "@specs-feup/clava-flow/ClavaControlFlowNode";
 import ClavaNode from "@specs-feup/clava-flow/ClavaNode";
-import { Expression, Statement } from "@specs-feup/clava/api/Joinpoints.js";
+import { AsmStmt } from "@specs-feup/clava/api/Joinpoints.js";
 import ControlFlowNode from "@specs-feup/flow/flow/ControlFlowNode";
 import Node from "@specs-feup/flow/graph/Node";
 
@@ -12,7 +12,7 @@ namespace AsmStatementNode {
         D extends Data = Data,
         S extends ScratchData = ScratchData,
     > extends ClavaControlFlowNode.Class<D, S> {
-        override get jp(): Statement {
+        override get jp(): AsmStmt {
             return this.scratchData[ClavaNode.TAG].jp;
         }
     }
@@ -26,10 +26,10 @@ namespace AsmStatementNode {
                 ControlFlowNode.ScratchData
             >
     {
-        #jp: Statement;
+        #jp: AsmStmt;
         #clavaNodeBuilder: ClavaNode.Builder;
 
-        constructor(jp: Statement) {
+        constructor(jp: AsmStmt) {
             this.#jp = jp;
             this.#clavaNodeBuilder = new ClavaNode.Builder(this.#jp);
         }
@@ -61,7 +61,7 @@ namespace AsmStatementNode {
         (sData) => {
             return (
                 ClavaControlFlowNode.TypeGuard.isScratchDataCompatible(sData) &&
-                sData[ClavaNode.TAG].jp instanceof Statement
+                sData[ClavaNode.TAG].jp instanceof AsmStmt
             );
         },
     );
@@ -74,7 +74,7 @@ namespace AsmStatementNode {
 
     export interface ScratchData extends ClavaControlFlowNode.ScratchData {
         [ClavaNode.TAG]: {
-            jp: Statement;
+            jp: AsmStmt;
         };
     }
 }
