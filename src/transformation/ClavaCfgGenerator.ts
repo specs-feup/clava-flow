@@ -38,7 +38,6 @@ import {
     Program,
     ReturnStmt,
     Scope,
-    Statement,
     Switch,
     Vardecl,
     WrapperStmt,
