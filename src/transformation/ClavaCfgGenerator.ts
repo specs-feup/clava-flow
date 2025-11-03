@@ -41,6 +41,7 @@ import {
     Switch,
     Vardecl,
     WrapperStmt,
+    AsmStmt
 } from "@specs-feup/clava/api/Joinpoints.js";
 import LaraFlowError from "@specs-feup/flow/error/LaraFlowError";
 import ControlFlowEdge from "@specs-feup/flow/flow/ControlFlowEdge";
@@ -51,6 +52,7 @@ import BaseGraph from "@specs-feup/flow/graph/BaseGraph";
 import Graph from "@specs-feup/flow/graph/Graph";
 import Node from "@specs-feup/flow/graph/Node";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
+import AsmStatementNode from "../cfg/node/AsmStatementNode.js";
 
 class SubGraph {
     head: ClavaControlFlowNode.Class | undefined;
@@ -516,6 +518,9 @@ export default class ClavaCfgGenerator
             return this.#processLabel(jp.decl, ctx);
         } else if (jp instanceof GotoStmt) {
             return this.#processGoto(jp, ctx);
+        } else if (jp instanceof AsmStmt) {
+            const node = ctx.addCfgNode(new AsmStatementNode.Builder(jp));
+            return SubGraph.fromSingle(node);
         }
 
         throw new Error("Unsupported joinpoint type " + jp.joinPointType);

@@ -23,9 +23,9 @@ import { ExprStmt, Joinpoint } from "@specs-feup/clava/api/Joinpoints.js";
 import FlowDotFormatter from "@specs-feup/flow/flow/dot/FlowDotFormatter";
 import BaseEdge from "@specs-feup/flow/graph/BaseEdge";
 import BaseNode from "@specs-feup/flow/graph/BaseNode";
-import DefaultDotFormatter from "@specs-feup/flow/graph/dot/DefaultDotFormatter";
 import Edge from "@specs-feup/flow/graph/Edge";
 import Node from "@specs-feup/flow/graph/Node";
+import AsmStatementNode from "../cfg/node/AsmStatementNode.js";
 
 export default class ClavaFlowDotFormatter<
     G extends ClavaFlowGraph.Class = ClavaFlowGraph.Class,
@@ -237,6 +237,12 @@ export default class ClavaFlowDotFormatter<
                         (n.jp.children[3] as ExprStmt).expr.code,
                     ),
                     ClavaFlowDotFormatter.renderSymbol("; ...)"),
+                );
+            }),
+            Node.Case(AsmStatementNode, (n) => {
+                result.label = ClavaFlowDotFormatter.renderNodeLabel(
+                    n.jp,
+                    ClavaFlowDotFormatter.renderKeyword("inline assembly"),
                 );
             }),
             Node.Case(ClavaControlFlowNode, (n) => {
