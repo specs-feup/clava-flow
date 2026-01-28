@@ -51,8 +51,8 @@
     },
     "homepage": "https://github.com/specs-feup/clava-flow#readme",
     "dependencies": {
-        "@specs-feup/clava": "^3.0.32",
-        "@specs-feup/lara": "^3.0.4",
+        "@specs-feup/clava": "^3.5.1",
+        "@specs-feup/lara": "^3.5.0",
         "@specs-feup/flow": "^1.0.3"
     },
     "devDependencies": {
