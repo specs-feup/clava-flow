@@ -22,7 +22,6 @@ jobs:
     - uses: actions/checkout@v4
       # Because of scheduled runs, by default run on default branch
       with:
-        ref: main
         path: workspace/clava-flow
 
     - name: Set up JDK 21
