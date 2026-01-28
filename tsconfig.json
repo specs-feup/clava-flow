@@ -1,17 +1,24 @@
 {
     "compilerOptions": {
-        "target": "ES2022",
         "module": "NodeNext",
-        "outDir": "dist",
+        "moduleResolution": "NodeNext",
+        "isolatedModules": true,
         "declaration": true,
         "strict": true,
-        "allowJs": false,
-        "moduleResolution": "NodeNext",
         "sourceMap": true,
         "declarationMap": true,
         "allowSyntheticDefaultImports": true,
+
+    /*
+        "target": "ES2022",
+
+        "outDir": "dist",
+        
+        "allowJs": false,
+        
         "forceConsistentCasingInFileNames": true,
         "noFallthroughCasesInSwitch": true,
+        */
         "paths": {
             "@specs-feup/clava-flow/*": ["./src/*.ts"]
         }
