@@ -14,7 +14,8 @@
         "noFallthroughCasesInSwitch": true,
         "paths": {
             "@specs-feup/clava-flow/*": ["./src/*.ts"]
-        }
+        },
+        "rootDir": "src"
         //"esModuleInterop": true
     },
     "exclude": ["node_modules", "dist"]

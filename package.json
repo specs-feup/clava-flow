@@ -1,6 +1,6 @@
 {
     "name": "@specs-feup/clava-flow",
-    "version": "1.0.1",
+    "version": "1.1.0",
     "description": "Control-flow, Data-flow, static-call, and other graphs for Clava.",
     "type": "module",
     "files": [
@@ -24,8 +24,8 @@
         "build:watch": "tsc --watch",
         "lint": "eslint .",
         "format": "prettier --write .",
-        "sandbox": "cross-env DEBUG=\"*\" npx clava out/src/sandbox.js -- clang in/sandbox",
-        "sandbox:watch": "cross-env DEBUG=\"*\" npx clava out/src/sandbox.js -w out/src -w in/sandbox -- clang in/sandbox",
+        "sandbox": "cross-env DEBUG=\"*\" npx clava dist/sandbox.js -- clang in/sandbox",
+        "sandbox:watch": "cross-env DEBUG=\"*\" npx clava dist/sandbox.js -w dist -w in/sandbox -- clang in/sandbox",
         "docs": "typedoc --out docs"
     },
     "exports": {
@@ -51,20 +51,18 @@
     },
     "homepage": "https://github.com/specs-feup/clava-flow#readme",
     "dependencies": {
-        "@specs-feup/clava": "^3.0.5",
-        "@specs-feup/lara": "^3.0.4",
-        "@specs-feup/flow": "^1.0.3"
+        "@specs-feup/clava": "~3.5.1",
+        "@specs-feup/lara": "~3.5.1",
+        "@specs-feup/flow": "^1.0.5"
     },
     "devDependencies": {
-        "@typescript-eslint/eslint-plugin": "^6.7.4",
-        "@typescript-eslint/parser": "^6.7.4",
-        "cross-env": "^7.0.3",
-        "eslint": "^8.50.0",
-        "eslint-config-prettier": "^9.0.0",
-        "eslint-plugin-jest": "^27.4.2",
-        "eslint-plugin-tsdoc": "^0.2.17",
+        "cross-env": "^10.1.0",
+        "eslint": "^9.39.2",
+        "eslint-config-prettier": "^10.1.8",
+        "eslint-plugin-jest": "^29.12.1",
+        "eslint-plugin-tsdoc": "^0.5.0",
         "prettier": "^3.2.5",
-        "typedoc": "^0.26.5",
-        "typescript": "^5.3.3"
+        "typescript": "^5.9.3",
+        "typescript-eslint": "^8.52.0"
     }
 }
