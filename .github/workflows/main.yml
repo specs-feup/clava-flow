@@ -1,0 +1,50 @@
+name: nightly
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+  # Monthly on the first day at midnight
+  schedule:
+    - cron: '0 0 1 * *'
+
+permissions:
+  checks: write
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v6
+      # Because of scheduled runs, by default run on default branch
+      with:
+        path: workspace/clava-flow
+
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+
+    - name: Set up Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: '24'
+
+    - name: Install node libraries
+      working-directory: workspace
+      run: |
+        cd clava-flow
+        npm install
+        npm run build
+     
+    # TODO     
+    #- name: Run clava-flow tests
+    #  working-directory: workspace/clava-flow
+    #  run: |
+    #    npm run test
+    #    if [ -f out/.failed ]; then exit 1; fi

@@ -1,24 +1,26 @@
 import ConditionalEdge from "@specs-feup/clava-flow/cfg/edge/ConditionalEdge";
+import AsmStatementNode from "@specs-feup/clava-flow/cfg/node/AsmStatementNode";
 import BreakNode from "@specs-feup/clava-flow/cfg/node/BreakNode";
 import CommentNode from "@specs-feup/clava-flow/cfg/node/CommentNode";
-import ContinueNode from "@specs-feup/clava-flow/cfg/node/ContinueNode";
 import DoWhileNode from "@specs-feup/clava-flow/cfg/node/condition/DoWhileNode";
-import EmptyStatementNode from "@specs-feup/clava-flow/cfg/node/EmptyStatementNode";
-import ExpressionNode from "@specs-feup/clava-flow/cfg/node/ExpressionNode";
 import ForEachNode from "@specs-feup/clava-flow/cfg/node/condition/ForEachNode";
 import ForNode from "@specs-feup/clava-flow/cfg/node/condition/ForNode";
+import IfNode from "@specs-feup/clava-flow/cfg/node/condition/IfNode";
+import WhileNode from "@specs-feup/clava-flow/cfg/node/condition/WhileNode";
+import ContinueNode from "@specs-feup/clava-flow/cfg/node/ContinueNode";
+import EmptyStatementNode from "@specs-feup/clava-flow/cfg/node/EmptyStatementNode";
+import ExpressionNode from "@specs-feup/clava-flow/cfg/node/ExpressionNode";
 import GotoLabelNode from "@specs-feup/clava-flow/cfg/node/GotoLabelNode";
 import GotoNode from "@specs-feup/clava-flow/cfg/node/GotoNode";
-import IfNode from "@specs-feup/clava-flow/cfg/node/condition/IfNode";
 import PragmaNode from "@specs-feup/clava-flow/cfg/node/PragmaNode";
 import ReturnNode from "@specs-feup/clava-flow/cfg/node/ReturnNode";
 import ScopeNode from "@specs-feup/clava-flow/cfg/node/ScopeNode";
 import VariableDeclarationNode from "@specs-feup/clava-flow/cfg/node/VariableDeclarationNode";
-import WhileNode from "@specs-feup/clava-flow/cfg/node/condition/WhileNode";
 import ClavaControlFlowNode from "@specs-feup/clava-flow/ClavaControlFlowNode";
 import ClavaFlowGraph from "@specs-feup/clava-flow/ClavaFlowGraph";
 import ClavaFunctionNode from "@specs-feup/clava-flow/ClavaFunctionNode";
 import {
+    AsmStmt,
     Break,
     Case,
     Comment,
@@ -331,9 +333,10 @@ class GeneratorContext {
     }
 }
 
-export default class ClavaCfgGenerator
-    implements Graph.Transformation<BaseGraph.Class, ClavaFlowGraph.Class>
-{
+export default class ClavaCfgGenerator implements Graph.Transformation<
+    BaseGraph.Class,
+    ClavaFlowGraph.Class
+> {
     #jps: (Program | FileJp | FunctionJp)[];
 
     constructor(...jps: (Program | FileJp | FunctionJp)[]) {
@@ -359,7 +362,11 @@ export default class ClavaCfgGenerator
         // Only process a FunctionJp if it is an implementation (and ignore nested functions)
         for (const jp of this.#jps) {
             if (jp instanceof Program || jp instanceof FileJp) {
-                for (const fn of Query.searchFrom(jp, FunctionJp, fn => fn.isImplementation)) {
+                for (const fn of Query.searchFrom(
+                    jp,
+                    FunctionJp,
+                    (fn) => fn.isImplementation,
+                )) {
                     this.#processFunction(cgraph, fn);
                 }
             } else if (jp instanceof FunctionJp) {
@@ -517,6 +524,9 @@ export default class ClavaCfgGenerator
             return this.#processLabel(jp.decl, ctx);
         } else if (jp instanceof GotoStmt) {
             return this.#processGoto(jp, ctx);
+        } else if (jp instanceof AsmStmt) {
+            const node = ctx.addCfgNode(new AsmStatementNode.Builder(jp));
+            return SubGraph.fromSingle(node);
         }
 
         throw new Error("Unsupported joinpoint type " + jp.joinPointType);
@@ -580,7 +590,7 @@ export default class ClavaCfgGenerator
         let step: SubGraph | undefined;
         let uninitConditionNode: ControlFlowNode.Class | undefined;
 
-        if ($jp.kind === "for") {
+        if ($jp.kind === "for" && $jp.init !== undefined) {
             init = this.#processJp($jp.init, ctx);
         }
 
@@ -598,7 +608,9 @@ export default class ClavaCfgGenerator
             // Only scenario where conditionNode is not defined
             uninitConditionNode = ctx.addCfgNode(new DoWhileNode.Builder($jp));
         } else if ($jp.kind === "for") {
-            step = this.#processJp($jp.step, ctx);
+            if ($jp.step !== undefined) {
+                step = this.#processJp($jp.step, ctx);
+            }
             // TODO add init and step to ForNode
             uninitConditionNode!.init(new ForNode.Builder($jp));
         } else if ($jp.kind === "foreach") {
@@ -614,28 +626,37 @@ export default class ClavaCfgGenerator
         ctx.addConditionalEdge(conditionNode, body.head!, true);
 
         const continueTarget =
-            $jp.kind === "for" && step!.head !== undefined ? step!.head : conditionNode;
+            $jp.kind === "for" && step !== undefined && step.head !== undefined
+                ? step.head
+                : conditionNode;
+
         for (const bodyTailNode of body.normalTail) {
             ctx.addCfgEdge(bodyTailNode, continueTarget);
         }
+
         for (const continueNode of continues) {
             ctx.connectOutwardsJump(continueNode, continueTarget);
         }
+
         if ($jp.kind === "for") {
-            for (const stepTailNode of step!.normalTail) {
-                ctx.addCfgEdge(stepTailNode, conditionNode);
+            if (step !== undefined) {
+                for (const stepTailNode of step.normalTail) {
+                    ctx.addCfgEdge(stepTailNode, conditionNode);
+                }
             }
 
-            for (const initTailNode of init!.normalTail) {
-                ctx.addCfgEdge(initTailNode, conditionNode);
+            if (init !== undefined) {
+                for (const initTailNode of init.normalTail) {
+                    ctx.addCfgEdge(initTailNode, conditionNode);
+                }
             }
         }
 
         let head: ClavaControlFlowNode.Class;
         if ($jp.kind === "dowhile") {
             head = body.head!;
-        } else if ($jp.kind === "for" && init!.head !== undefined) {
-            head = init!.head;
+        } else if ($jp.kind === "for" && init !== undefined && init.head !== undefined) {
+            head = init.head;
         } else {
             head = conditionNode;
         }

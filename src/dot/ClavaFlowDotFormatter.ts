@@ -1,20 +1,21 @@
 import ConditionalEdge from "@specs-feup/clava-flow/cfg/edge/ConditionalEdge";
+import AsmStatementNode from "@specs-feup/clava-flow/cfg/node/AsmStatementNode";
 import BreakNode from "@specs-feup/clava-flow/cfg/node/BreakNode";
 import CommentNode from "@specs-feup/clava-flow/cfg/node/CommentNode";
-import ContinueNode from "@specs-feup/clava-flow/cfg/node/ContinueNode";
 import DoWhileNode from "@specs-feup/clava-flow/cfg/node/condition/DoWhileNode";
-import EmptyStatementNode from "@specs-feup/clava-flow/cfg/node/EmptyStatementNode";
-import ExpressionNode from "@specs-feup/clava-flow/cfg/node/ExpressionNode";
 import ForEachNode from "@specs-feup/clava-flow/cfg/node/condition/ForEachNode";
 import ForNode from "@specs-feup/clava-flow/cfg/node/condition/ForNode";
+import IfNode from "@specs-feup/clava-flow/cfg/node/condition/IfNode";
+import WhileNode from "@specs-feup/clava-flow/cfg/node/condition/WhileNode";
+import ContinueNode from "@specs-feup/clava-flow/cfg/node/ContinueNode";
+import EmptyStatementNode from "@specs-feup/clava-flow/cfg/node/EmptyStatementNode";
+import ExpressionNode from "@specs-feup/clava-flow/cfg/node/ExpressionNode";
 import GotoLabelNode from "@specs-feup/clava-flow/cfg/node/GotoLabelNode";
 import GotoNode from "@specs-feup/clava-flow/cfg/node/GotoNode";
-import IfNode from "@specs-feup/clava-flow/cfg/node/condition/IfNode";
 import PragmaNode from "@specs-feup/clava-flow/cfg/node/PragmaNode";
 import ReturnNode from "@specs-feup/clava-flow/cfg/node/ReturnNode";
 import ScopeNode from "@specs-feup/clava-flow/cfg/node/ScopeNode";
 import VariableDeclarationNode from "@specs-feup/clava-flow/cfg/node/VariableDeclarationNode";
-import WhileNode from "@specs-feup/clava-flow/cfg/node/condition/WhileNode";
 import ClavaControlFlowNode from "@specs-feup/clava-flow/ClavaControlFlowNode";
 import ClavaFlowGraph from "@specs-feup/clava-flow/ClavaFlowGraph";
 import ClavaFunctionNode from "@specs-feup/clava-flow/ClavaFunctionNode";
@@ -23,7 +24,6 @@ import { ExprStmt, Joinpoint } from "@specs-feup/clava/api/Joinpoints.js";
 import FlowDotFormatter from "@specs-feup/flow/flow/dot/FlowDotFormatter";
 import BaseEdge from "@specs-feup/flow/graph/BaseEdge";
 import BaseNode from "@specs-feup/flow/graph/BaseNode";
-import DefaultDotFormatter from "@specs-feup/flow/graph/dot/DefaultDotFormatter";
 import Edge from "@specs-feup/flow/graph/Edge";
 import Node from "@specs-feup/flow/graph/Node";
 
@@ -237,6 +237,12 @@ export default class ClavaFlowDotFormatter<
                         (n.jp.children[3] as ExprStmt).expr.code,
                     ),
                     ClavaFlowDotFormatter.renderSymbol("; ...)"),
+                );
+            }),
+            Node.Case(AsmStatementNode, (n) => {
+                result.label = ClavaFlowDotFormatter.renderNodeLabel(
+                    n.jp,
+                    ClavaFlowDotFormatter.renderKeyword("inline assembly"),
                 );
             }),
             Node.Case(ClavaControlFlowNode, (n) => {

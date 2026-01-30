@@ -3,6 +3,7 @@
         "target": "ES2022",
         "module": "NodeNext",
         "outDir": "dist",
+        "isolatedModules": true,
         "declaration": true,
         "strict": true,
         "allowJs": false,
