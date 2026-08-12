@@ -9,3 +9,6 @@ enum_integer_type.txt
 is_temporary.txt
 omp.txt
 types_with_templates.txt
+*.d.ts
+*.map
+src/**/*.js
