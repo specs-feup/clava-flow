@@ -1,4 +1,4 @@
-name: nightly
+name: CI
 
 on:
   push:
@@ -6,9 +6,6 @@ on:
   pull_request:
     branches: [ main ]
 
-  # Monthly on the first day at midnight
-  schedule:
-    - cron: '0 0 1 * *'
 
 permissions:
   checks: write
@@ -36,15 +33,13 @@ jobs:
         node-version: '24'
 
     - name: Install node libraries
-      working-directory: workspace
-      run: |
-        cd clava-flow
-        npm install
-        npm run build
-     
-    # TODO     
-    #- name: Run clava-flow tests
-    #  working-directory: workspace/clava-flow
-    #  run: |
-    #    npm run test
-    #    if [ -f out/.failed ]; then exit 1; fi
+      working-directory: workspace/clava-flow
+      run: npm install
+
+    - name: Build clava-flow
+      working-directory: workspace/clava-flow
+      run: npm run build
+
+    - name: Run clava-flow tests
+      working-directory: workspace/clava-flow
+      run: npm run test

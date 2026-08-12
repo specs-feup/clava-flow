@@ -24,6 +24,7 @@
         "build:watch": "tsc --watch",
         "lint": "eslint .",
         "format": "prettier --write .",
+        "test": "cross-env NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" jest --runInBand --detectOpenHandles --forceExit",
         "sandbox": "cross-env DEBUG=\"*\" npx clava dist/sandbox.js -- clang in/sandbox",
         "sandbox:watch": "cross-env DEBUG=\"*\" npx clava dist/sandbox.js -w dist -w in/sandbox -- clang in/sandbox",
         "docs": "typedoc --out docs"
@@ -56,12 +57,16 @@
         "@specs-feup/flow": "^1.0.5"
     },
     "devDependencies": {
+        "@jest/globals": "^29.7.0",
+        "@types/jest": "^29.5.14",
         "cross-env": "^10.1.0",
         "eslint": "^9.39.2",
         "eslint-config-prettier": "^10.1.8",
         "eslint-plugin-jest": "^29.12.1",
         "eslint-plugin-tsdoc": "^0.5.0",
+        "jest": "^29.7.0",
         "prettier": "^3.2.5",
+        "ts-jest": "^29.4.5",
         "typescript": "^5.9.3",
         "typescript-eslint": "^8.52.0"
     }
